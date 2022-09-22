@@ -6,6 +6,9 @@ library(tidyverse)
 library(vegan)
 library(labdsv)
 
+## Workflow 
+
+
 ### Data Exploration ----
 sp.full <- read.csv("Data/sp_data.csv", header = T, strip.white = T)
 plot.full <- read.csv("Data/plot_data.csv", header = T)
@@ -28,7 +31,7 @@ sp.full <- sp.full %>%
                                          "vanlig styvstarr", species_id)) %>% 
               mutate(species_id = ifelse(species_id == "styvstar", 
                                          "vanlig styvstarr", species_id)) %>% 
-              mutate(community = ifelse(community == "C", "L", community)) %>% 
+              mutate(community = ifelse(community == "L", "C", community)) %>% 
               mutate(plot_nr = as.factor(plot_nr)) %>% 
               mutate(elevation_cat = ifelse(elevation_cat == "ML", "LM", elevation_cat)) %>% 
               mutate(elevation_cat = ifelse(elevation_cat == "ML ", "LM", elevation_cat)) 
@@ -48,7 +51,7 @@ unique(plot.full$community)
 unique(plot.full$elevation_cat)
 str(plot.full)
 
-### Species Richness ----
+### Species Richness Calculation ----
 sp.full <- sp.full %>% 
               group_by(site, elevation_cat, community, plot_nr) %>% 
               mutate(sp_richness = length(unique(species_id))) %>% 
@@ -78,6 +81,12 @@ ggplot(ndvi.rich, aes(x = elevation_m, y = NDVI)) +
   stat_smooth(method = "lm", aes(color = community)) +
   geom_point(aes(color = community)) +
   facet_wrap(~site, scales = "free_x")
+
+# NDVI ~ elevation + community + precipitation   
+ggplot(ndvi.rich, aes(x = elevation_m, y = NDVI)) +
+  stat_smooth(method = "lm", aes(color = site)) +
+  geom_point(aes(color = site)) +
+  facet_wrap(~community, scales = "free_x")
 
 # NDVI ~ community + elevation (cat) + site
 ggplot(ndvi.rich, aes(x = elevation_cat, y = NDVI)) +
@@ -118,8 +127,74 @@ ggplot(ndvi.rich, aes(x = sp_richness, y = NDVI)) +
   geom_point(aes(color = community)) + 
   facet_wrap(~site, scales = "free_x")
 
+# NDVI ~ height + community + site
+ggplot(ndvi.rich, aes(x = avg_height, y = NDVI)) +
+  stat_smooth(method = "lm", aes(color = site)) + 
+  geom_point(aes(color = site)) +
+  facet_wrap(~community, scales = "free_x")
 
-## NMDS
+
+### Moss:Lichen Ratio ----
+## Looking at ratio of moss to lichen in cryptogram plots 
+crypto <- sp.full %>% 
+            filter(sp_group == "lichen" | sp_group == "moss and liverwort") %>% 
+            filter(coverage > 0)
+
+crypto <- crypto %>% 
+            dplyr::select(site, elevation_cat, community, plot_nr, sp_group, coverage) %>% 
+            pivot_wider(names_from = sp_group, values_from = coverage) 
+
+crypto <- crypto %>%  
+            mutate(lichen = replace_na(lichen, 0)) %>% 
+            mutate(`moss and liverwort` = replace_na(`moss and liverwort`, 0)) %>% 
+            mutate(moss_liverwort = `moss and liverwort`) %>% 
+            dplyr::select(!`moss and liverwort`)
+
+# calculating the ratio (normalized)
+crypto <- crypto %>%  
+            mutate(ratio = (moss_liverwort-lichen)/(moss_liverwort+lichen))  
+    # -1 = more lichen, +1 = more moss 
+
+# adding back NDVI
+crypto <- left_join(crypto, plot.full, by = c("site", "elevation_cat", "community", "plot_nr")) 
+crypto <- crypto %>% 
+            dplyr::select(site, elevation_cat, community, plot_nr, ratio, NDVI) %>% 
+            filter(community == "C")  # only interested in this community 
+
+
+# plotting 
+ggplot(crypto, aes(x = site, y = ratio)) + 
+  geom_boxplot()  # seems to be similar, but slightly higher ratio in K than N (more moss)
+
+ggplot(crypto, aes(x = ratio, y = NDVI)) +
+  stat_smooth(method = "lm") +
+  geom_point() +
+  facet_wrap(~site)  # higher NDVI in K, more plots with moss dominance in K than in N 
+
+# testing for significance 
+t.test(ratio ~ site, data = crypto)  # not a significant difference though between sites 
+
+
+# calculating average ratio
+  # by site only
+crypto_sum <- crypto %>% 
+                group_by(site) %>% 
+                summarize(avg_ratio = mean(ratio))
+
+ggplot(crypto_sum, aes(x = site, y = avg_ratio)) + 
+  geom_point()
+
+  # by elevation and site 
+crypto_sum2 <- crypto %>% 
+                  group_by(site, elevation_cat) %>% 
+                  summarize(avg_ratio = mean(ratio))
+
+ggplot(crypto_sum2, aes(x = site, y = avg_ratio)) + 
+  geom_jitter(width = 0.1)
+
+
+
+### NMDS ----
 # making a new object for community analysis
 matrix.sp <- sp.full %>% 
                 dplyr::select(site, elevation_cat, plot_nr, community, 
