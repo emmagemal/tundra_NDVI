@@ -13,6 +13,7 @@ plot.full <- read.csv("Data/plot_data.csv", header = T)
 str(sp.full)
 str(plot.full)
 
+## Seeing if any names are inconsistent 
 unique(sp.full$species_id)   # 'vanlig styvstarr' == 'styvstarr' == 'styvstar' 
                              # 'moss 1' == "moss1 
 unique(plot.full$elevation_cat)  # 'LM' == 'ML' == 'ML '
@@ -39,7 +40,7 @@ str(sp.full)
 
 plot.full <- plot.full %>% 
                 mutate(plot_nr = as.factor(plot_nr)) %>% 
-                mutate(community = ifelse(community == "C", "L", community)) %>% 
+                mutate(community = ifelse(community == "L", "C", community)) %>% 
                 mutate(elevation_cat = ifelse(elevation_cat == "ML", "LM", elevation_cat)) %>% 
                 mutate(elevation_cat = ifelse(elevation_cat == "ML ", "LM", elevation_cat))
                 
@@ -60,18 +61,17 @@ rich <- sp.full %>%
           distinct()
 rich
 
+### Initial Plots ----
 # combining with plot data
 ndvi.rich <-full_join(plot.full, rich)
-
 head(ndvi.rich)
 
-### Initial Plots ----
 # fixing the order of elevations to be accurate to the height (= for plotting)
-ndvi_rich <- ndvi.rich %>% 
+ndvi.rich <- ndvi.rich %>% 
                 mutate(elevation_cat = as.factor(elevation_cat)) %>% 
                 mutate(elevation_cat = factor(elevation_cat, 
                                               levels = c("L", "LM", "M", "MH", "H")))
-
+str(ndvi.rich)
 
 # NDVI ~ elevation + community + precipitation   <-- will probably use this for the results
 ggplot(ndvi.rich, aes(x = elevation_m, y = NDVI)) +
@@ -79,10 +79,10 @@ ggplot(ndvi.rich, aes(x = elevation_m, y = NDVI)) +
   geom_point(aes(color = community)) +
   facet_wrap(~site, scales = "free_x")
 
-# NDVI ~ community + elevation (cat)
-ggplot(ndvi.rich, aes(x = community, y = NDVI)) +
-  geom_boxplot() +
-  facet_wrap(~elevation_cat)
+# NDVI ~ community + elevation (cat) + site
+ggplot(ndvi.rich, aes(x = elevation_cat, y = NDVI)) +
+  geom_boxplot(aes(fill = community)) +
+  facet_wrap(~site)
 
 # NDVI ~ elevation + community (cont)
 ggplot(ndvi.rich, aes(x = elevation_m, y = NDVI)) +
