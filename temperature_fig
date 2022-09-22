@@ -1,2 +1,0 @@
-data<-read.table("temperature.txt",header=T)
-head(data)
