@@ -4,7 +4,6 @@
 ### Library ----
 library(tidyverse)
 library(vegan)
-library(labdsv)
 
 ## Workflow 
 
@@ -12,8 +11,6 @@ library(labdsv)
 ### Data ----
 sp.full <- read.csv("Data/sp_data.csv", header = T, strip.white = T)
 plot.full <- read.csv("Data/plot_data.csv", header = T)
-
-matrix.sp <- read.csv("Data/nmds_matrix.csv", header = T)
 
 ### Data Exploration ----
 str(sp.full)
@@ -28,6 +25,7 @@ unique(plot.full$community)
 unique(plot.full$elevation_cat)
 # looks good 
 
+
 ### Species Richness Calculation ----
 sp.full <- sp.full %>% 
               group_by(site, elevation_cat, community, plot_nr) %>% 
@@ -40,6 +38,10 @@ rich <- sp.full %>%
           dplyr::select(site, elevation_cat, community, plot_nr, sp_richness) %>% 
           distinct()
 rich
+rich %>% 
+  group_by(elevation_cat, site, community) %>%
+  summarise(no_rows = length(elevation_cat))   # checking we have all the plots 
+
 
 ### Initial Plots ----
 # combining with plot data
@@ -148,12 +150,6 @@ ggplot(crypto, aes(x = ratio, y = NDVI)) +
   geom_point() +
   facet_wrap(~site)  # higher NDVI in K, more plots with moss dominance in K than in N 
 
-# testing for significance 
-t.test(ratio ~ site, data = crypto)  # not a significant difference though between sites 
-summary(lm(ratio ~ elevation_m*site, data = crypto))  # no significant differences 
-shapiro.test(resid(lm(ratio ~ site*elevation_m, data = crypto)))
-
-
 # calculating average ratio
   # by site only
 crypto_sum <- crypto %>% 
@@ -173,16 +169,15 @@ ggplot(crypto_sum2, aes(x = site, y = avg_ratio)) +
 
 
 
-### NMDS ----
-str(matrix.sp)
-matrix.sp <- matrix.sp %>% 
-                filter(!plot == "(blank)") %>% 
-                dplyr::select(!X.blank.) 
-matrix.sp[is.na(matrix.sp)] <- 0
-
-
 
 ### Statistical Analysis ----
+## Moss:Lichen Ratio -
+shapiro.test(crypto$ratio)   # not normal itself 
+t.test(ratio ~ site, data = crypto)  # not a significant difference though between sites 
+
+shapiro.test(resid(lm(ratio ~ site*elevation_m, data = crypto)))  # normal residuals 
+summary(lm(ratio ~ elevation_m*site, data = crypto))  # no significant differences 
+
 
 
 
