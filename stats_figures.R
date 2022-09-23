@@ -13,7 +13,7 @@ library(labdsv)
 sp.full <- read.csv("Data/sp_data.csv", header = T, strip.white = T)
 plot.full <- read.csv("Data/plot_data.csv", header = T)
 
-matrix.sp <- read.csv("Data/matrix_nmds.csv", header = T)
+matrix.sp <- read.csv("Data/nmds_matrix.csv", header = T)
 
 ### Data Exploration ----
 str(sp.full)
@@ -174,22 +174,13 @@ ggplot(crypto_sum2, aes(x = site, y = avg_ratio)) +
 
 
 ### NMDS ----
-matrix.sp <- sp.full %>% 
-                dplyr::select(site, elevation_cat, plot_nr, community, 
-                              species_id, sp_group, coverage) %>% 
-                mutate(coverage = replace_na(coverage, 1)) %>% 
-                unite("plot", 1:4, remove = F) %>% 
-                mutate(species_id2 = ifelse(sp_group == "", species_id, sp_group)) %>% 
-                mutate(species_id2 = ifelse(species_id2 == "graminoid", species_id, species_id2)) %>% 
-                distinct(plot, species_id2, sp_group, coverage)
+str(matrix.sp)
+matrix.sp <- matrix.sp %>% 
+                filter(!plot == "(blank)") %>% 
+                dplyr::select(!X.blank.) 
+matrix.sp[is.na(matrix.sp)] <- 0
 
-# removing unnecessary rows (duplicates of lichens and mosses)
-matrix.sp2 <- matrix.sp %>%
-                group_by(plot, sp_group) %>% 
-                arrange(desc(coverage)) %>% 
-                filter(!duplicated(species_id2))
 
-write.csv(matrix.sp, file = "Data/matrix_sp.csv")
 
 ### Statistical Analysis ----
 
