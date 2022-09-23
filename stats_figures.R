@@ -194,6 +194,7 @@ ggplot(crypto_sum2, aes(x = site, y = avg_ratio)) +
 
 
 
+
 ### NMDS ----
 # making a new object for community analysis
 matrix.sp <- sp.full %>% 
