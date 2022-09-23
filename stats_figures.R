@@ -9,47 +9,24 @@ library(labdsv)
 ## Workflow 
 
 
-### Data Exploration ----
+### Data ----
 sp.full <- read.csv("Data/sp_data.csv", header = T, strip.white = T)
 plot.full <- read.csv("Data/plot_data.csv", header = T)
 
+matrix.sp <- read.csv("Data/matrix_nmds.csv", header = T)
+
+### Data Exploration ----
 str(sp.full)
 str(plot.full)
 
 ## Seeing if any names are inconsistent 
-unique(sp.full$species_id)   # 'vanlig styvstarr' == 'styvstarr' == 'styvstar' 
-                             # 'moss 1' == "moss1 
-unique(plot.full$elevation_cat)  # 'LM' == 'ML' == 'ML '
-unique(sp.full$community)   # remove C (same as L)
+unique(sp.full$species_id)  
+unique(plot.full$elevation_cat) 
+unique(sp.full$community)   
 
 unique(plot.full$community)
 unique(plot.full$elevation_cat)
-
-sp.full <- sp.full %>% 
-              mutate(species_id = ifelse(species_id == "moss1", "moss 1", species_id)) %>% 
-              mutate(species_id = ifelse(species_id == "styvstarr", 
-                                         "vanlig styvstarr", species_id)) %>% 
-              mutate(species_id = ifelse(species_id == "styvstar", 
-                                         "vanlig styvstarr", species_id)) %>% 
-              mutate(community = ifelse(community == "L", "C", community)) %>% 
-              mutate(plot_nr = as.factor(plot_nr)) %>% 
-              mutate(elevation_cat = ifelse(elevation_cat == "ML", "LM", elevation_cat)) %>% 
-              mutate(elevation_cat = ifelse(elevation_cat == "ML ", "LM", elevation_cat)) 
-
-unique(sp.full$species_id) 
-unique(sp.full$community)
-unique(sp.full$elevation_cat)
-str(sp.full)
-
-plot.full <- plot.full %>% 
-                mutate(plot_nr = as.factor(plot_nr)) %>% 
-                mutate(community = ifelse(community == "L", "C", community)) %>% 
-                mutate(elevation_cat = ifelse(elevation_cat == "ML", "LM", elevation_cat)) %>% 
-                mutate(elevation_cat = ifelse(elevation_cat == "ML ", "LM", elevation_cat))
-                
-unique(plot.full$community)
-unique(plot.full$elevation_cat)
-str(plot.full)
+# looks good 
 
 ### Species Richness Calculation ----
 sp.full <- sp.full %>% 
@@ -158,7 +135,7 @@ crypto <- crypto %>%
 # adding back NDVI
 crypto <- left_join(crypto, plot.full, by = c("site", "elevation_cat", "community", "plot_nr")) 
 crypto <- crypto %>% 
-            dplyr::select(site, elevation_cat, community, plot_nr, ratio, NDVI) %>% 
+            dplyr::select(site, elevation_cat, elevation_m, community, plot_nr, ratio, NDVI) %>% 
             filter(community == "C")  # only interested in this community 
 
 
@@ -173,6 +150,8 @@ ggplot(crypto, aes(x = ratio, y = NDVI)) +
 
 # testing for significance 
 t.test(ratio ~ site, data = crypto)  # not a significant difference though between sites 
+summary(lm(ratio ~ elevation_m*site, data = crypto))  # no significant differences 
+shapiro.test(resid(lm(ratio ~ site*elevation_m, data = crypto)))
 
 
 # calculating average ratio
@@ -194,21 +173,23 @@ ggplot(crypto_sum2, aes(x = site, y = avg_ratio)) +
 
 
 
-
 ### NMDS ----
-# making a new object for community analysis
 matrix.sp <- sp.full %>% 
                 dplyr::select(site, elevation_cat, plot_nr, community, 
                               species_id, sp_group, coverage) %>% 
                 mutate(coverage = replace_na(coverage, 1)) %>% 
                 unite("plot", 1:4, remove = F) %>% 
-                mutate(species_id = ifelse(sp_group == "", species_id, sp_group)) %>% 
-                group_by(plot) %>% 
-                
-                
-matrix.sp
+                mutate(species_id2 = ifelse(sp_group == "", species_id, sp_group)) %>% 
+                mutate(species_id2 = ifelse(species_id2 == "graminoid", species_id, species_id2)) %>% 
+                distinct(plot, species_id2, sp_group, coverage)
 
-matrix.sp <- matrify(matrix.sp)
+# removing unnecessary rows (duplicates of lichens and mosses)
+matrix.sp2 <- matrix.sp %>%
+                group_by(plot, sp_group) %>% 
+                arrange(desc(coverage)) %>% 
+                filter(!duplicated(species_id2))
+
+write.csv(matrix.sp, file = "Data/matrix_sp.csv")
 
 ### Statistical Analysis ----
 
