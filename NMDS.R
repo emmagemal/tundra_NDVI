@@ -6,7 +6,6 @@ library(vegan)
 matrix.sp <- read.csv("Data/nmds_matrix.csv", header = T)
 
 
-### NMDS ###
 ### Separating matrices by community ----
 str(matrix.sp)
 matrix.sp[is.na(matrix.sp)] <- 0
@@ -30,7 +29,7 @@ matrix.t <- matrix.t %>%
               mutate(plot_num = 1:30) %>% 
               dplyr::select(plot, plot_num, site, elevation, betula.nana:vanlig.styvstarr)
 
-# saving as a cheat-sheet 
+# saving for making ellipsoids 
 plots.c <- matrix.c %>% 
             dplyr::select(plot, plot_num, site, elevation)
 plots.s <- matrix.s %>% 
@@ -96,6 +95,7 @@ veganCovEllipse <- function (cov, center = c(0, 0), scale = 1, npoints = 100)
 }  # run from here
 
 df_ell.c1 <- data.frame()   # run from here (this side)
+
 for(g in levels(NMDS.c1$group)){
   df_ell.c1 <- rbind(df_ell.c1, 
                   cbind(as.data.frame(with(NMDS.c1[NMDS.c1$group==g,],
@@ -105,21 +105,23 @@ for(g in levels(NMDS.c1$group)){
 }  # run from here 
 
 (nmds.plot.c1 <- ggplot(data.scores.c, aes(x = NMDS1, y = NMDS2)) + 
-                    geom_polygon(data = df_ell, aes(x = NMDS1, y = NMDS2, group = group,
+                    geom_polygon(data = df_ell.c1, aes(x = NMDS1, y = NMDS2, group = group,
                                                     color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
                     geom_point(aes(color = site, pch = site), size = 2) +
                     theme_bw() + 
                     theme(legend.position = "right") + 
                     labs(x = "NMDS1", y = "NMDS2") +
-                    scale_color_manual(values = c("#698B22", "#CD8500"),
-                                       labels = c("Katterjokk", "Nissonjokk"),
+                    scale_color_manual(values = c("#9BCD9B", "#F4A460"),
+                                       labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
                                        name = "Site") +
-                    scale_shape_discrete(labels = c("Katterjokk", "Nissonjokk"),
+                    scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
                                          name = "Site") +
-                    scale_fill_manual(values = c("#698B22", "#CD8500"),
-                                      labels = c("Katterjokk", "Nissonjokk"),
+                    scale_fill_manual(values = c("#9BCD9B", "#F4A460"),
+                                      labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
                                       name = "Site"))
+
+ggsave("Figures/NMDS_c_site.png", plot = nmds.plot.c1, width = 5, height = 4, units = "in")
 
 # ELEVATION
 # extracting NMDS scores (x and y coordinates)
@@ -133,6 +135,7 @@ NMDS.c2.mean = aggregate(NMDS.c2[,1:2], list(group = NMDS.c2$group), "mean")
 ord.c2 <- ordiellipse(c.nmds, data.scores.c$elevation, label = T, conf = 0.95)
 
 df_ell.c2 <- data.frame()
+
 for(g in levels(NMDS.c2$group)){
   df_ell.c2 <- rbind(df_ell.c2, 
                   cbind(as.data.frame(with(NMDS.c2[NMDS.c2$group==g,],
@@ -141,7 +144,7 @@ for(g in levels(NMDS.c2$group)){
                         ,group=g))
 }
 
-(nmds_plot.c2 <- ggplot(data.scores.c, aes(x = NMDS1, y = NMDS2)) + 
+(nmds.plot.c2 <- ggplot(data.scores.c, aes(x = NMDS1, y = NMDS2)) + 
                     geom_polygon(data = df_ell.c2, aes(x = NMDS1, y = NMDS2, group = group,
                                                        color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
@@ -149,11 +152,21 @@ for(g in levels(NMDS.c2$group)){
                     theme_bw() + 
                     theme(legend.position = "right") + 
                     labs(x = "NMDS1", y = "NMDS2") +
-                    scale_shape_discrete(labels = c("Katterjokk", "Nissonjokk"),
-                                         name = "Site"))
+                    scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
+                                         name = "Site") +
+                    scale_fill_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
+                                                 "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                                      name = "Elevation",
+                                      labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")) +
+                    scale_color_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
+                                                  "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                                       name = "Elevation",
+                                       labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")))
+
+ggsave("Figures/NMDS_c_elev.png", plot = nmds.plot.c2, width = 5, height = 4, units = "in")
 
 
-## SHORT SHRUBS ----  
+### SHORT SHRUBS ----  
 # Looking at how many axes to extract 
 s1.mds <- metaMDS(matrix.s, distance = "bray", k = 1)
 s2.mds <- metaMDS(matrix.s, distance = "bray", k = 2)
@@ -200,7 +213,7 @@ for(g in levels(NMDS.s1$group)){
                         ,group=g))
 }
 
-(nmds_plot.s1 <- ggplot(data.scores.s, aes(x = NMDS1, y = NMDS2)) + 
+(nmds.plot.s1 <- ggplot(data.scores.s, aes(x = NMDS1, y = NMDS2)) + 
                     geom_polygon(data = df_ell.s1, aes(x = NMDS1, y = NMDS2, group = group,
                                                        color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
@@ -208,14 +221,16 @@ for(g in levels(NMDS.s1$group)){
                     theme_bw() + 
                     theme(legend.position = "right") + 
                     labs(x = "NMDS1", y = "NMDS2") +
-                    scale_color_manual(values = c("#698B22", "#CD8500"),
-                                       labels = c("Katterjokk", "Nissonjokk"),
+                    scale_color_manual(values = c("#9BCD9B", "#F4A460"),
+                                       labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
                                        name = "Site") +
-                    scale_shape_discrete(labels = c("Katterjokk", "Nissonjokk"),
+                    scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
                                          name = "Site") +
-                    scale_fill_manual(values = c("#698B22", "#CD8500"),
-                                      labels = c("Katterjokk", "Nissonjokk"),
+                    scale_fill_manual(values = c("#9BCD9B", "#F4A460"),
+                                      labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
                                       name = "Site"))
+
+ggsave("Figures/NMDS_s_site.png", plot = nmds.plot.s1, width = 5, height = 4, units = "in")
 
 # ELEVATION
 # extracting NMDS scores (x and y coordinates)
@@ -237,7 +252,7 @@ for(g in levels(NMDS.s2$group)){
                            ,group=g))
 }
 
-(nmds_plot.s2 <- ggplot(data.scores.s, aes(x = NMDS1, y = NMDS2)) + 
+(nmds.plot.s2 <- ggplot(data.scores.s, aes(x = NMDS1, y = NMDS2)) + 
                     geom_polygon(data = df_ell.s2, aes(x = NMDS1, y = NMDS2, group = group,
                                                        color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
@@ -245,11 +260,21 @@ for(g in levels(NMDS.s2$group)){
                     theme_bw() + 
                     theme(legend.position = "right") + 
                     labs(x = "NMDS1", y = "NMDS2") +
-                    scale_shape_discrete(labels = c("Katterjokk", "Nissonjokk"),
-                                         name = "Site"))
+                    scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
+                                         name = "Site") +
+                    scale_fill_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
+                                                 "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                                      name = "Elevation",
+                                      labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")) +
+                    scale_color_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
+                                                  "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                                       name = "Elevation",
+                                       labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")))
+
+ggsave("Figures/NMDS_s_elev.png", plot = nmds.plot.s2, width = 5, height = 4, units = "in")
 
 
-## TALL SHRUBS --
+### TALL SHRUBS ----
 # Looking at how many axes to extract 
 t1.mds <- metaMDS(matrix.t, distance = "bray", k = 1)
 t2.mds <- metaMDS(matrix.t, distance = "bray", k = 2)
@@ -270,15 +295,6 @@ t.nmds <- metaMDS(matrix.t, distance = "bray", k = 2, autotransform = TRUE, trym
 t.nmds
 # dimensions = 2
 # stress = 0.145
-
-ordiplot(t.nmds)
-orditorp(t.nmds, display = "species", col = "red", air = 0.01)
-
-# plot
-ordiplot(t.nmds, type = "n")
-ordiplot(t.nmds$points)
-ordihull(t.nmds,groups = plots.c$site, draw = "polygon", label = F, col = colvec)
-
 
 ## Plotting NMDS
 # extracting NMDS scores (x and y coordinates)
@@ -305,7 +321,7 @@ for(g in levels(NMDS.t1$group)){
                            ,group=g))
 }
 
-(nmds_plot.t1 <- ggplot(data.scores.t, aes(x = NMDS1, y = NMDS2)) + 
+(nmds.plot.t1 <- ggplot(data.scores.t, aes(x = NMDS1, y = NMDS2)) + 
                     geom_polygon(data = df_ell.t1, aes(x = NMDS1, y = NMDS2, group = group,
                                                        color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
@@ -313,14 +329,16 @@ for(g in levels(NMDS.t1$group)){
                     theme_bw() + 
                     theme(legend.position = "right") + 
                     labs(x = "NMDS1", y = "NMDS2") +
-                    scale_color_manual(values = c("#698B22", "#CD8500"),
-                                       labels = c("Katterjokk", "Nissonjokk"),
+                    scale_color_manual(values = c("#9BCD9B", "#F4A460"),
+                                       labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
                                        name = "Site") +
-                    scale_shape_discrete(labels = c("Katterjokk", "Nissonjokk"),
+                    scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
                                          name = "Site") +
-                    scale_fill_manual(values = c("#698B22", "#CD8500"),
-                                      labels = c("Katterjokk", "Nissonjokk"),
+                    scale_fill_manual(values = c("#9BCD9B", "#F4A460"),
+                                      labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
                                       name = "Site"))
+
+ggsave("Figures/NMDS_t_site.png", plot = nmds.plot.t1, width = 5, height = 4, units = "in")
 
 # ELEVATION
 # extracting NMDS scores (x and y coordinates)
@@ -342,7 +360,7 @@ for(g in levels(NMDS.t2$group)){
                            ,group=g))
 }
 
-(nmds_plot.t2 <- ggplot(data.scores.t, aes(x = NMDS1, y = NMDS2)) + 
+(nmds.plot.t2 <- ggplot(data.scores.t, aes(x = NMDS1, y = NMDS2)) + 
                     geom_polygon(data = df_ell.t2, aes(x = NMDS1, y = NMDS2, group = group,
                                                        color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
@@ -350,8 +368,49 @@ for(g in levels(NMDS.t2$group)){
                     theme_bw() + 
                     theme(legend.position = "right") + 
                     labs(x = "NMDS1", y = "NMDS2") +
-                    scale_shape_discrete(labels = c("Katterjokk", "Nissonjokk"),
-                                         name = "Site"))
+                    scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
+                                         name = "Site") +
+                    scale_fill_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
+                                                 "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                                      name = "Elevation",
+                                      labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")) +
+                    scale_color_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
+                                                  "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                                       name = "Elevation",
+                                       labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")))
+
+ggsave("Figures/NMDS_t_elev.png", plot = nmds.plot.t2, width = 5, height = 4, units = "in")
+
+
+### ANOSIM test ----
+# testing if we have significantly different communities
+## CRYPTOGAMS --
+# Site
+ano.c1 <- anosim(matrix.c, plots.c$site, distance = "bray", permutations = 9999)
+ano.c1
+
+# Elevation
+ano.c2 <- anosim(matrix.c, plots.c$elevation, distance = "bray", permutations = 9999)
+ano.c2
+
+## SHORT SHRUBS --
+# Site
+ano.s1 <- anosim(matrix.s, plots.s$site, distance = "bray", permutations = 9999)
+ano.s1
+
+# Elevation
+ano.s2 <- anosim(matrix.s, plots.s$elevation, distance = "bray", permutations = 9999)
+ano.s2
+
+## TALL SHRUBS --
+# Site
+ano.t1 <- anosim(matrix.t, plots.t$site, distance = "bray", permutations = 9999)
+ano.t1
+
+# Elevation
+ano.t2 <- anosim(matrix.t, plots.t$elevation, distance = "bray", permutations = 9999)
+ano.t2
+
 
 
 ## Q for Emil: is it ok to plot an NMDS with > 2 dimensions in 2D? (axis 1 ~ axis 2)
