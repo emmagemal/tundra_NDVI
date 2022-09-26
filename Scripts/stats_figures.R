@@ -4,6 +4,8 @@
 ### Library ----
 library(tidyverse)
 library(vegan)
+library(lmtest)  # for Breusch-Pagan test for homoskedasticity 
+
 
 ## Workflow 
 
@@ -171,7 +173,7 @@ ggplot(crypto_sum2, aes(x = site, y = avg_ratio)) +
 
 
 ### Statistical Analysis ----
-## Moss:Lichen Ratio -
+## Moss:Lichen Ratio -- 
 shapiro.test(crypto$ratio)   # not normal itself 
 t.test(ratio ~ site, data = crypto)  # not a significant difference though between sites 
 
@@ -179,6 +181,152 @@ shapiro.test(resid(lm(ratio ~ site*elevation_m, data = crypto)))  # normal resid
 summary(lm(ratio ~ elevation_m*site, data = crypto))  # no significant differences 
 
 
+## Linear models -- 
+# NDVI ~ temperature and precipitation (irrespective of community)
+lm1 <- lm(NDVI ~ elevation_m + site, data = ndvi.rich)
+plot(lm1)  # some heteroskedasticity may be present 
+shapiro.test(resid(lm1))  # normal, p > 0.05
+bptest(lm1)   # no heteroskedasticity, but close 
 
+lm1int <- lm(NDVI ~ elevation_m*site, data = ndvi.rich)
+plot(lm1int)  # some heteroskedasticity may be present 
+shapiro.test(resid(lm1int))  # normal, p > 0.05
+bptest(lm1int)   # no heteroskedasticity 
 
+# NDVI ~ temperature, precipitation and community 
+lm2 <- lm(NDVI ~ elevation_m + community + site, data = ndvi.rich)
+plot(lm2)  # some potential outliers, but won't remove 
+shapiro.test(resid(lm2))   # normally distributed, p > 0.05 
+bptest(lm2)   # no heteroskedasticity 
 
+lm2int <- lm(NDVI ~ elevation_m + community + site, data = ndvi.rich)
+plot(lm2int)  # some potential outliers, but won't remove 
+shapiro.test(resid(lm2int))   # normally distributed, p > 0.05 
+bptest(lm2int)   # no heteroskedasticity 
+
+lm2int2 <- lm(NDVI ~ elevation_m*community + site, data = ndvi.rich)
+plot(lm2int2)  # some potential outliers, but won't remove 
+shapiro.test(resid(lm2int2))   # normally distributed, p > 0.05 
+bptest(lm2int2)   # no heteroskedasticity 
+
+lm2int3 <- lm(NDVI ~ elevation_m + community*site, data = ndvi.rich)
+plot(lm2int3)  # some potential outliers, but won't remove 
+shapiro.test(resid(lm2int3))   # normally distributed, p > 0.05 
+bptest(lm2int3)   # no heteroskedasticity 
+
+# NDVI ~ temperature, precipitation, community and richness
+lm3 <- lm(NDVI ~ elevation_m + community + site + sp_richness, data = ndvi.rich)
+plot(lm3)  # some potential outliers, but won't remove 
+shapiro.test(resid(lm3))   # normally distributed, p > 0.05 
+bptest(lm3)   # no heteroskedasticity 
+
+lm3int <- lm(NDVI ~ elevation_m*community*site*sp_richness, data = ndvi.rich)
+plot(lm3int)  # also a few potential outliers
+shapiro.test(resid(lm3int))   # normal, p > 0.05 
+bptest(lm3int)   # no heteroskedasticity 
+
+lm3int2 <- lm(NDVI ~ elevation_m*community*site + sp_richness, data = ndvi.rich)
+plot(lm3int2)  # also a few potential outliers
+shapiro.test(resid(lm3int2))   # normal, p > 0.05 
+bptest(lm3int2)   # no heteroskedasticity 
+
+# NDVI ~ temperature, precipitation, community and height 
+lm4 <- lm(NDVI ~ elevation_m + community + site + avg_height, data = ndvi.rich)
+plot(lm4)  # some potential outliers, but won't remove 
+shapiro.test(resid(lm4))   # normally distributed, p > 0.05 
+bptest(lm4)   # no heteroskedasticity 
+
+lm4int <- lm(NDVI ~ elevation_m*community*site*avg_height, data = ndvi.rich)
+plot(lm4int)  # also a few potential outliers
+shapiro.test(resid(lm4int)) # NOT normal, p < 0.05 = DON'T USE AS IS
+bptest(lm4int)   # no heteroskedasticity though 
+
+hist(ndvi.rich$avg_height)  # very skewed, would need to use poisson in the model 
+  # only fix if significant = a variable worth including 
+
+# NDVI ~ temperature, precipitation, community, richness and height
+lm5 <- lm(NDVI ~ elevation_m + community + site + sp_richness + avg_height, data = ndvi.rich)
+plot(lm5)  # some potential outliers, but won't remove 
+shapiro.test(resid(lm5))   # normally distributed, p > 0.05 
+bptest(lm5)   # no heteroskedasticity 
+
+lm5int <- lm(NDVI ~ elevation_m*community*site*sp_richness*avg_height, data = ndvi.rich)
+plot(lm5int)  # also a few potential outliers
+shapiro.test(resid(lm5int)) # NOT normal, p < 0.05 = DON'T USE AS IS
+bptest(lm5int)   # no heteroskedasticity though 
+
+# NDVI ~ richness and community
+lm6 <- lm(NDVI ~ sp_richness + community, data = ndvi.rich)
+plot(lm6)  # some potential outliers, but won't remove 
+shapiro.test(resid(lm6))   # normally distributed, p > 0.05 barely 
+bptest(lm6)   # no heteroskedasticity 
+
+lm6int <- lm(NDVI ~ community*sp_richness, data = ndvi.rich)
+plot(lm6int)  # also a few potential outliers
+shapiro.test(resid(lm6int)) # normal, p > 0.05 
+bptest(lm6int)   # no heteroskedasticity 
+
+# NDVI ~ richness and height 
+lm7 <- lm(NDVI ~ sp_richness + avg_height, data = ndvi.rich)
+plot(lm7)  # some potential outliers, but won't remove 
+shapiro.test(resid(lm7))   # normally distributed, p > 0.05  
+bptest(lm7)   # no heteroskedasticity 
+
+lm7int <- lm(NDVI ~ sp_richness*avg_height, data = ndvi.rich)
+plot(lm7int)  # also a few potential outliers
+shapiro.test(resid(lm7int)) # normal, p > 0.05 
+bptest(lm7int)  # no heteroskedasticity
+
+# NDVI ~ height and community
+lm8 <- lm(NDVI ~ avg_height + community, data = ndvi.rich)
+plot(lm8)  # some potential outliers, but won't remove 
+shapiro.test(resid(lm8))   # normal, p > 0.05  
+bptest(lm8)   # YES heteroskedasticity :(
+
+lm8int <- lm(NDVI ~ avg_height*community, data = ndvi.rich)
+plot(lm8int)  # also a few potential outliers
+shapiro.test(resid(lm8int)) # normal, p > 0.05 
+bptest(lm8int)  # no heteroskedasticity
+
+# NDVI ~ richness, height and community 
+lm9 <- lm(NDVI ~ sp_richness + avg_height + community, data = ndvi.rich)
+plot(lm9)  # some potential outliers, but won't remove 
+shapiro.test(resid(lm9))   # normally distributed, p > 0.05  
+bptest(lm9)   # no heteroskedasticity 
+
+lm9int <- lm(NDVI ~ sp_richness*avg_height*community, data = ndvi.rich)
+plot(lm9int)  # also a few potential outliers
+shapiro.test(resid(lm9int)) # NOT normal, p < 0.05 
+bptest(lm9int)  # no heteroskedasticity
+
+# Null model 
+nullmod1 <- lm(NDVI ~ 1, data = ndvi.rich)
+
+# Comparison of models
+AIC(lm1, lm1int, lm2, lm2int, lm2int2, lm2int3, lm3, lm3int, lm3int2, lm4, lm5, lm6, lm6int, 
+    lm7, lm7int, lm8int, lm9, nullmod1)
+  # lowest = lm3int, has very high DF (25) though 
+  # best simple models (lower DF) = lm2int2, lm2int3, lm5 or lm4 
+      # (>2 units better than lm3 = next best) 
+
+# richness and height were NOT better predictors of NDVI than elevation or site 
+
+summary(lm3int)  # richness has no significant effect on any relationships = omit as variable
+  # also too complex to interpret 
+summary(lm4)
+summary(lm5)  # being able to have richness AND height in model = kinda nice
+  # also chose this due to SLIGHTLY higher adjusted R2 value 
+
+# estimate = effect of predictor for a 1 unit increase in NDVI 
+
+# average NDVI when x = 0 is 0.545 (intercept)
+# as elevation increases, NDVI increases (slope = 1.087e-4)
+    # but this is not significant (p = 0.1892)
+# short shrubs have a higher NDVI than cryptogams and tall shrubs (communityS = 0.545 + 0.186 = 0.731)
+  # is significantly greater than cryptogams and tall shrubs overall (p = 3.77e-16)
+# tall shrubs only have a higher NDVI than cryptogams (communityT = 0.545 + 0.0499)
+# NDVI is significantly lower in Nissonjokk (dry) than in Katterjokk 
+    # (siteN is negative, p = 7.36e-6)
+# 
+
+  
