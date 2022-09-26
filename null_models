@@ -1,0 +1,66 @@
+setwd("C:/Users/Acer/OneDrive/Documenten/Master geomatics/Arctic ecosystems/R")
+sp.full <- read.csv("sp_data.csv", header = T, strip.white = T)
+plot.full <- read.csv("plot_data.csv", header = T)
+
+head(plot.full)
+# summary of the data
+summary(plot.full)
+
+str(plot.full)
+
+install.packages("sciplot")
+install.packages("multcomp")
+install.packages("mvtnorm")
+install.packages("survival")
+install.packages("TH.data")
+install.packages("MASS")
+install.packages("AICcmodavg")
+
+library(sciplot)
+library(multcomp)
+library(mvtnorm)
+library(survival)
+library(TH.data)
+library(MASS)
+library(AICcmodavg)
+
+# residuals - deviations from the mean of the group, within-group variation that is not explained by experimental factors, 'error variation'
+# are the residuals normally distributed? not too much to worry about, but also very good to detect outliers
+model <- lm(NDVI ~ elevation_m*community*site, data=plot.full)
+plot(fitted(model), resid(model), xlab = "fitted", ylab = "residuals", main="Homoscedasticity")
+qqnorm(resid(model), main = "Normality")                   
+qqline(resid(model), main = "", col = 2)
+shapiro.test(resid(model))
+    #normally distributed
+lm(NDVI ~ elevation_m*community*site, data=plot.full)
+plot(lm(NDVI ~ elevation_m*community*site, data=plot.full))
+
+#normally distributed NDVI ~ elev_m*community*site*sp_richness
+model2 <- lm(NDVI ~ elevation_m*community*site*sp_richness, data=ndvi.rich)
+plot(fitted(model2), resid(model2), xlab = "fitted", ylab = "residuals", main="Homoscedasticity")
+qqnorm(resid(model2), main = "Normality")                   
+qqline(resid(model2), main = "", col = 2)
+shapiro.test(resid(model2))
+    #normally distributed
+plot(lm(NDVI ~ elevation_m*community*site*sp_richness, data=ndvi.rich))
+
+#normally distributed NDVI ~ elev_m*community*site*sp_richness*avg_height
+model3 <- lm(NDVI ~ elevation_m*community*site*avg_height, data=plot.full)
+plot(fitted(model3), resid(model3), xlab = "fitted", ylab = "residuals", main="Homoscedasticity")
+qqnorm(resid(model3), main = "Normality")                   
+qqline(resid(model3), main = "", col = 2)
+shapiro.test(resid(model3))
+    #not normally distributed
+
+#null models
+    #null model NDVI
+nullmod1 <- lm(NDVI ~ 1, data=plot.full)
+
+#define list of models
+models <- list (model, model2, model3)
+
+#specify model names
+mod.names <- c('elev_m.com.site', 'elev_m.com.site.sp_rich', 'elev_m.com.site.avg_height')
+
+#calculate AIC of each model
+aictab(cand.set = models, modnames = mod.names)
