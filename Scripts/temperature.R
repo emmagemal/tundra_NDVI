@@ -18,6 +18,9 @@ install.packages("ggplot2")
 library("ggplot2")
 
 #point
+f1 <- function(x) c(Mean = mean(x), Max = max(x),Min=min(x), SD = sd(x))
+mean<-do.call(data.frame, aggregate(temp~site+elev_cat, data, f1))
+
 ggplot(mean,aes(elev_cat,temp.Mean))+geom_point(color="red")+geom_point(data=mean,aes(elev_cat,temp.Max),color="blue")+geom_point(data=mean,aes(elev_cat,temp.Min),color="purple")+geom_errorbar(aes(ymin=temp.Mean-temp.SD, ymax=temp.Mean+temp.SD),color="red", width = 0.05)+geom_errorbar(aes(ymin=temp.Max-temp.SD, ymax=temp.Max+temp.SD),color="blue", width = 0.05)+geom_errorbar(aes(ymin=temp.Min-temp.SD, ymax=temp.Min+temp.SD),color="purple", width = 0.05)+facet_grid(~site)
 
 
