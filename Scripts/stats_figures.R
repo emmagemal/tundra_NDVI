@@ -1,13 +1,9 @@
-## Statistics and Figures for Group 6 Arctic Ecosystems Project
+## Statistics for Group 6 Arctic Ecosystems Project
 ## Emma Gemal
 
 ### Library ----
 library(tidyverse)
-library(vegan)
 library(lmtest)  # for Breusch-Pagan test for homoskedasticity 
-
-
-## Workflow 
 
 
 ### Data ----
@@ -45,8 +41,7 @@ rich %>%
   summarise(no_rows = length(elevation_cat))   # checking we have all the plots 
 
 
-### Initial Plots ----
-# combining with plot data
+### Analysis Data ---- 
 ndvi.rich <-full_join(plot.full, rich)
 head(ndvi.rich)
 
@@ -56,63 +51,6 @@ ndvi.rich <- ndvi.rich %>%
                 mutate(elevation_cat = factor(elevation_cat, 
                                               levels = c("L", "LM", "M", "MH", "H")))
 str(ndvi.rich)
-
-# NDVI ~ elevation + community + precipitation   <-- will probably use this for the results
-ggplot(ndvi.rich, aes(x = elevation_m, y = NDVI)) +
-  stat_smooth(method = "lm", aes(color = community)) +
-  geom_point(aes(color = community)) +
-  facet_wrap(~site, scales = "free_x")
-
-# NDVI ~ elevation + community + precipitation   
-ggplot(ndvi.rich, aes(x = elevation_m, y = NDVI)) +
-  stat_smooth(method = "lm", aes(color = site)) +
-  geom_point(aes(color = site)) +
-  facet_wrap(~community, scales = "free_x")
-
-# NDVI ~ community + elevation (cat) + site
-ggplot(ndvi.rich, aes(x = elevation_cat, y = NDVI)) +
-  geom_boxplot(aes(fill = community)) +
-  facet_wrap(~site)
-
-# NDVI ~ elevation + community (cont)
-ggplot(ndvi.rich, aes(x = elevation_m, y = NDVI)) +
-  stat_smooth(method = "lm", aes(color = community, fill = community)) +
-  geom_point(aes(color = community))
-
-
-# NDVI ~ precipitation + community  
-ggplot(ndvi.rich, aes(x = community, y = NDVI)) +
-  geom_boxplot(aes(color = site ))
-
-## To see if they correlate well 
-  # NDVI ~ LAI
-ggplot(ndvi.rich, aes(x = NDVI, y = LAI)) +   # they do, sexy 
-  geom_point()
-  # NDVI ~ fPAR
-ggplot(ndvi.rich, aes(x = NDVI, y = fPAR)) +
-  geom_point()
-  # LAI ~ fPAR
-ggplot(ndvi.rich, aes(x = LAI, y = fPAR)) +
-  geom_point()
-
-
-# NDVI ~ richness + site   <-- could use this for results, but not shown for each sp.
-ggplot(ndvi.rich, aes(x = sp_richness, y = NDVI)) +
-  stat_smooth(method = "lm") + 
-  geom_point(aes(color = community)) + 
-  facet_wrap(~site, scales = "free_x")
-
-# NDVI ~ richness + site + community   <-- useful for results
-ggplot(ndvi.rich, aes(x = sp_richness, y = NDVI)) +
-  stat_smooth(method = "lm", aes(color = community)) + 
-  geom_point(aes(color = community)) + 
-  facet_wrap(~site, scales = "free_x")
-
-# NDVI ~ height + community + site
-ggplot(ndvi.rich, aes(x = avg_height, y = NDVI)) +
-  stat_smooth(method = "lm", aes(color = site)) + 
-  geom_point(aes(color = site)) +
-  facet_wrap(~community, scales = "free_x")
 
 
 ### Moss:Lichen Ratio ----
@@ -168,7 +106,6 @@ crypto_sum2 <- crypto %>%
 
 ggplot(crypto_sum2, aes(x = site, y = avg_ratio)) + 
   geom_jitter(width = 0.1)
-
 
 
 
@@ -335,3 +272,5 @@ summary(lm2int)   # to get detailed results
 # for cryptogams, there is no effect of elevation but there is a trend towards an increase
     # (slope = 3.579e-4, SE = high (2.024e-4), p = 0.0809), but there is a difference between
     # sites, with N having a lower NDVI overall (K int = 0.5397, N int = 0.4191, p = 0.00417)
+
+# adjusted R2 = 0.6828
