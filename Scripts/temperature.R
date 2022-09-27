@@ -18,7 +18,8 @@ install.packages("ggplot2")
 library("ggplot2")
 
 #point
-ggplot(data,aes(date_time,temp,color=elev_cat))+geom_point()+facet_grid(~site)
+ggplot(mean,aes(elev_cat,temp.Mean))+geom_point(color="red")+geom_point(data=mean,aes(elev_cat,temp.Max),color="blue")+geom_point(data=mean,aes(elev_cat,temp.Min),color="purple")+geom_errorbar(aes(ymin=temp.Mean-temp.SD, ymax=temp.Mean+temp.SD),color="red", width = 0.05)+geom_errorbar(aes(ymin=temp.Max-temp.SD, ymax=temp.Max+temp.SD),color="blue", width = 0.05)+geom_errorbar(aes(ymin=temp.Min-temp.SD, ymax=temp.Min+temp.SD),color="purple", width = 0.05)+facet_grid(~site)
+
 
 #boxplot
 ggplot(data,aes(elev_cat,temp,color=elev_cat))+geom_boxplot()+facet_grid(~site)
