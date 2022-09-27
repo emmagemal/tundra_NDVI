@@ -16,4 +16,9 @@ plot(temp~date_time, data=data, pch=20,cex=0.8, col=elev_cat);legend("topleft",l
 ####N and K separated####
 install.packages("ggplot2")
 library("ggplot2")
+
+#point
 ggplot(data,aes(date_time,temp,color=elev_cat))+geom_point()+facet_grid(~site)
+
+#boxplot
+ggplot(data,aes(elev_cat,temp,color=elev_cat))+geom_boxplot()+facet_grid(~site)
