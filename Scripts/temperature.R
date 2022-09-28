@@ -31,15 +31,10 @@ ggplot(mean,aes(elev_cat,temp.Mean))+geom_point(color="red")+geom_point(data=mea
 
 
 #boxplot
-data$elev_cat <- relevel(data$elev_cat,"H")
-data$elev_cat <- relevel(data$elev_cat,"MH")
-data$elev_cat <- relevel(data$elev_cat,"M")
-data$elev_cat <- relevel(data$elev_cat,"ML")
-data$elev_cat <- relevel(data$elev_cat,"L")
+data$elev_cat <- relevel(data$elev_cat,"H");data$elev_cat <- relevel(data$elev_cat,"MH");data$elev_cat <- relevel(data$elev_cat,"M");data$elev_cat <- relevel(data$elev_cat,"ML");data$elev_cat <- relevel(data$elev_cat,"L")
 
 ggplot(data,aes(elev_cat,temp,color=elev_cat))+geom_boxplot()+facet_grid(~site)
 
 #model
-model<-aov(data=data,temp~elev_cat*site)
-summary(model)
+model<-aov(data=data,temp~elev_cat*site); summary(model)
 
