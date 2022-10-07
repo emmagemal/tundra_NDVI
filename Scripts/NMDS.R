@@ -25,6 +25,7 @@ matrix.c <- matrix.c %>%
 matrix.s <- matrix.s %>% 
               mutate(plot_num = 1:30) %>% 
               dplyr::select(plot, plot_num, site, elevation, betula.nana:vanlig.styvstarr)
+
 matrix.t <- matrix.t %>% 
               mutate(plot_num = 1:30) %>% 
               dplyr::select(plot, plot_num, site, elevation, betula.nana:vanlig.styvstarr)
@@ -68,13 +69,57 @@ c.nmds
 # stress = 0.147
 
 ordiplot(c.nmds)
-orditorp(c.nmds, display = "species",col = "red", air = 0.01)
+orditorp(c.nmds, display = "species", col = "red", air = 0.01)
+
+plots.c2 <- plots.c %>% 
+              dplyr::select(elevation, site) %>% 
+              mutate(elev_m = case_when(site == "K" & elevation == "L" ~ 530,
+                                        site == "K" & elevation == "LM" ~ 571,
+                                        site == "K" & elevation == "M" ~ 622,
+                                        site == "K" & elevation == "MH" ~ 702,
+                                        site == "K" & elevation == "H" ~ 764,
+                                        site == "N" & elevation == "L" ~ 527,
+                                        site == "N" & elevation == "LM" ~ 594,
+                                        site == "N" & elevation == "M" ~ 661,
+                                        site == "N" & elevation == "MH" ~ 716,
+                                        site == "N" & elevation == "H" ~ 820))
+predictors <- envfit(c.nmds, plots.c2, permutations = 999, na.rm = TRUE)
+predictors
 
 ## Plotting NMDS
 # extracting NMDS scores (x and y coordinates)
 data.scores.c <- as.data.frame(scores(c.nmds))
+species_scores <- as.data.frame(scores(c.nmds, "species"))
+species_scores$species <- rownames(species_scores)
+
 data.scores.c$site <- plots.c$site
 data.scores.c$elevation <- plots.c$elevation
+
+pred_coord <- as.data.frame(scores(predictors, "factors")) * ordiArrowMul(predictors)
+row.names.site <- c("siteK", "siteN")
+row.names.elev <- c("elevationL", "elevationLM", "elevationM", "elevationMH", "elevationH")
+pred_coord_elev <- pred_coord[!(row.names(pred_coord) %in% row.names.site),]
+pred_coord_site <- pred_coord[!(row.names(pred_coord) %in% row.names.elev),]
+
+
+(gg <- ggplot(data = data.scores.c, aes(x = NMDS1, y = NMDS2)) + 
+  geom_point(data = data.scores.c, aes(colour = site), size = 3, alpha = 0.5) + 
+  scale_colour_manual(values = c("orange", "steelblue"))  + 
+  geom_segment(aes(x = 0, y = 0, xend = NMDS1, yend = NMDS2), 
+               data = pred_coord_elev, size =1, alpha = 0.5, colour = "grey30") +
+    geom_text(data = species_scores, aes(x = NMDS1, y = NMDS2, label = species),
+              alpha = 0.5) +
+  geom_text(data = pred_coord_elev, aes(x = NMDS1, y = NMDS2), colour = "grey30", 
+            fontface = "bold", label = row.names(pred_coord_elev)) + 
+    geom_polygon(data = df_ell.c1, aes(x = NMDS1, y = NMDS2, group = group,
+                                       color = group, fill = group), alpha = 0.2, 
+                 size = 0.5, linetype = 1) +
+  theme(axis.title = element_text(size = 10, face = "bold", colour = "grey30"), 
+        panel.background = element_blank(), panel.border = element_rect(fill = NA, colour = "grey30"), 
+        axis.ticks = element_blank(), axis.text = element_blank(), legend.key = element_blank(), 
+        legend.title = element_text(size = 10, face = "bold", colour = "grey30"), 
+        legend.text = element_text(size = 9, colour = "grey30")))
+
 
 # SITE
 NMDS.c1 <- data.frame(MDS1 = c.nmds$points[,1], MDS2 = c.nmds$points[,2], 
