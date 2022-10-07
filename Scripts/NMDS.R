@@ -1,6 +1,7 @@
 ### Library ----
 library(tidyverse)
 library(vegan)
+library(gridExtra)
 
 ### Data ---- 
 matrix.sp <- read.csv("Data/nmds_matrix.csv", header = T)
@@ -11,7 +12,7 @@ str(matrix.sp)
 matrix.sp[is.na(matrix.sp)] <- 0
 
 matrix.c <- matrix.sp %>% 
-              filter(grepl("_C", plot))
+              filter(grepl("_C", plot)) 
 matrix.s <- matrix.sp %>% 
               filter(grepl("_S", plot))
 matrix.t <- matrix.sp %>% 
@@ -38,13 +39,13 @@ plots.s <- matrix.s %>%
 plots.t <- matrix.t %>% 
             dplyr::select(plot, plot_num, site, elevation)
 
-# removing categorical plot data 
+# removing plot data 
 matrix.c <- matrix.c %>% 
-              dplyr::select(plot_num, betula.nana:vanlig.styvstarr)
+              dplyr::select(betula.nana:vanlig.styvstarr)
 matrix.s <- matrix.s %>% 
-              dplyr::select(plot_num, betula.nana:vanlig.styvstarr)
+              dplyr::select(betula.nana:vanlig.styvstarr)
 matrix.t <- matrix.t %>% 
-              dplyr::select(plot_num, betula.nana:vanlig.styvstarr)
+              dplyr::select(betula.nana:vanlig.styvstarr)
 
 ### CRYPTOGAMS ----  
 # Looking at how many axes to extract 
@@ -66,25 +67,11 @@ c.nmds <- metaMDS(matrix.c, distance = "bray", k = 2, autotransform = TRUE, trym
                   sratmax = 0.999)  
 c.nmds
 # dimensions = 2
-# stress = 0.147
+# stress = 0.149
 
 ordiplot(c.nmds)
 orditorp(c.nmds, display = "species", col = "red", air = 0.01)
 
-plots.c2 <- plots.c %>% 
-              dplyr::select(elevation, site) %>% 
-              mutate(elev_m = case_when(site == "K" & elevation == "L" ~ 530,
-                                        site == "K" & elevation == "LM" ~ 571,
-                                        site == "K" & elevation == "M" ~ 622,
-                                        site == "K" & elevation == "MH" ~ 702,
-                                        site == "K" & elevation == "H" ~ 764,
-                                        site == "N" & elevation == "L" ~ 527,
-                                        site == "N" & elevation == "LM" ~ 594,
-                                        site == "N" & elevation == "M" ~ 661,
-                                        site == "N" & elevation == "MH" ~ 716,
-                                        site == "N" & elevation == "H" ~ 820))
-predictors <- envfit(c.nmds, plots.c2, permutations = 999, na.rm = TRUE)
-predictors
 
 ## Plotting NMDS
 # extracting NMDS scores (x and y coordinates)
@@ -94,31 +81,6 @@ species_scores$species <- rownames(species_scores)
 
 data.scores.c$site <- plots.c$site
 data.scores.c$elevation <- plots.c$elevation
-
-pred_coord <- as.data.frame(scores(predictors, "factors")) * ordiArrowMul(predictors)
-row.names.site <- c("siteK", "siteN")
-row.names.elev <- c("elevationL", "elevationLM", "elevationM", "elevationMH", "elevationH")
-pred_coord_elev <- pred_coord[!(row.names(pred_coord) %in% row.names.site),]
-pred_coord_site <- pred_coord[!(row.names(pred_coord) %in% row.names.elev),]
-
-
-(gg <- ggplot(data = data.scores.c, aes(x = NMDS1, y = NMDS2)) + 
-  geom_point(data = data.scores.c, aes(colour = site), size = 3, alpha = 0.5) + 
-  scale_colour_manual(values = c("orange", "steelblue"))  + 
-  geom_segment(aes(x = 0, y = 0, xend = NMDS1, yend = NMDS2), 
-               data = pred_coord_elev, size =1, alpha = 0.5, colour = "grey30") +
-    geom_text(data = species_scores, aes(x = NMDS1, y = NMDS2, label = species),
-              alpha = 0.5) +
-  geom_text(data = pred_coord_elev, aes(x = NMDS1, y = NMDS2), colour = "grey30", 
-            fontface = "bold", label = row.names(pred_coord_elev)) + 
-    geom_polygon(data = df_ell.c1, aes(x = NMDS1, y = NMDS2, group = group,
-                                       color = group, fill = group), alpha = 0.2, 
-                 size = 0.5, linetype = 1) +
-  theme(axis.title = element_text(size = 10, face = "bold", colour = "grey30"), 
-        panel.background = element_blank(), panel.border = element_rect(fill = NA, colour = "grey30"), 
-        axis.ticks = element_blank(), axis.text = element_blank(), legend.key = element_blank(), 
-        legend.title = element_text(size = 10, face = "bold", colour = "grey30"), 
-        legend.text = element_text(size = 9, colour = "grey30")))
 
 
 # SITE
@@ -149,13 +111,30 @@ for(g in levels(NMDS.c1$group)){
                         ,group=g))
 }  # run from here 
 
+
+# making a theme
+theme_ndvi <- theme_bw() +
+                theme(panel.grid = element_blank(),
+                      axis.title.x = 
+                        element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)),
+                      axis.title.y = 
+                        element_text(margin = margin(t = 0, r = 10, b = 0, l = 0))) +
+                theme(plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"))
+
+data.scores.c$title <- c("Cryptogams")
+
+# plot
 (nmds.plot.c1 <- ggplot(data.scores.c, aes(x = NMDS1, y = NMDS2)) + 
                     geom_polygon(data = df_ell.c1, aes(x = NMDS1, y = NMDS2, group = group,
                                                     color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
                     geom_point(aes(color = site, pch = site), size = 2) +
-                    theme_bw() + 
-                    theme(legend.position = "right") + 
+           #         geom_text(data = species_scores, aes(x = NMDS1, y = NMDS2, label = species),
+           #                   alpha = 0.5, size = 2) +
+                    facet_wrap(~title) +
+                    theme_ndvi + 
+                    theme(legend.position = "none",
+                          plot.margin = unit(c(0,1.5,0.5,0), "cm")) + 
                     labs(x = "NMDS1", y = "NMDS2") +
                     scale_color_manual(values = c("#9BCD9B", "#F4A460"),
                                        labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
@@ -194,8 +173,12 @@ for(g in levels(NMDS.c2$group)){
                                                        color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
                     geom_point(aes(color = elevation, pch = site), size = 2) +
-                    theme_bw() + 
-                    theme(legend.position = "right") + 
+             #geom_text(data = species_scores, aes(x = NMDS1, y = NMDS2, label = species),
+             #          alpha = 0.5, size = 2) +
+                    facet_wrap(~title) +
+                    theme_ndvi + 
+                    theme(legend.position = "none",
+                          plot.margin = unit(c(0,1.5,0,0), "cm"))+ 
                     labs(x = "NMDS1", y = "NMDS2") +
                     scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
                                          name = "Site") +
@@ -236,6 +219,9 @@ s.nmds
 ## Plotting NMDS
 # extracting NMDS scores (x and y coordinates)
 data.scores.s <- as.data.frame(scores(s.nmds))
+species_scores.s <- as.data.frame(scores(s.nmds, "species"))
+species_scores.s$species <- rownames(species_scores)
+
 data.scores.s$site <- plots.s$site
 data.scores.s$elevation <- plots.s$elevation
 
@@ -258,13 +244,20 @@ for(g in levels(NMDS.s1$group)){
                         ,group=g))
 }
 
+# plot
+data.scores.s$title <- c("Short shrubs")
+
 (nmds.plot.s1 <- ggplot(data.scores.s, aes(x = NMDS1, y = NMDS2)) + 
                     geom_polygon(data = df_ell.s1, aes(x = NMDS1, y = NMDS2, group = group,
                                                        color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
                     geom_point(aes(color = site, pch = site), size = 2) +
-                    theme_bw() + 
-                    theme(legend.position = "right") + 
+                 #   geom_text(data = species_scores.s, aes(x = NMDS1, y = NMDS2, label = species),
+                 #             alpha = 0.5, size = 2) +
+                    facet_wrap(~title) +
+                    theme_ndvi + 
+                    theme(legend.position = "none",
+                          plot.margin = unit(c(0,1.5,0.5,0), "cm"))+ 
                     labs(x = "NMDS1", y = "NMDS2") +
                     scale_color_manual(values = c("#9BCD9B", "#F4A460"),
                                        labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
@@ -302,8 +295,12 @@ for(g in levels(NMDS.s2$group)){
                                                        color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
                     geom_point(aes(color = elevation, pch = site), size = 2) +
-                    theme_bw() + 
-                    theme(legend.position = "right") + 
+               #     geom_text(data = species_scores.s, aes(x = NMDS1, y = NMDS2, label = species),
+               #               alpha = 0.5, size = 2) +
+                    facet_wrap(~title) +
+                    theme_ndvi + 
+                    theme(legend.position = "none",
+                          plot.margin = unit(c(0,1.5,0,0), "cm"))+ 
                     labs(x = "NMDS1", y = "NMDS2") +
                     scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
                                          name = "Site") +
@@ -344,6 +341,9 @@ t.nmds
 ## Plotting NMDS
 # extracting NMDS scores (x and y coordinates)
 data.scores.t <- as.data.frame(scores(t.nmds))
+species_scores.t <- as.data.frame(scores(t.nmds, "species"))
+species_scores.t$species <- rownames(species_scores)
+
 data.scores.t$site <- plots.t$site
 data.scores.t$elevation <- plots.t$elevation
 
@@ -366,13 +366,20 @@ for(g in levels(NMDS.t1$group)){
                            ,group=g))
 }
 
+# plot
+data.scores.t$title <- c("Tall shrubs")
+
 (nmds.plot.t1 <- ggplot(data.scores.t, aes(x = NMDS1, y = NMDS2)) + 
                     geom_polygon(data = df_ell.t1, aes(x = NMDS1, y = NMDS2, group = group,
                                                        color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
                     geom_point(aes(color = site, pch = site), size = 2) +
-                    theme_bw() + 
-                    theme(legend.position = "right") + 
+                   # geom_text(data = species_scores.t, aes(x = NMDS1, y = NMDS2, label = species),
+                   #           alpha = 0.5, size = 2) +
+                    facet_wrap(~title) +
+                    theme_ndvi + 
+                    theme(legend.position = "right",
+                          plot.margin = unit(c(0,0,0.5,0), "cm"))+ 
                     labs(x = "NMDS1", y = "NMDS2") +
                     scale_color_manual(values = c("#9BCD9B", "#F4A460"),
                                        labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
@@ -410,8 +417,12 @@ for(g in levels(NMDS.t2$group)){
                                                        color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
                     geom_point(aes(color = elevation, pch = site), size = 2) +
-                    theme_bw() + 
-                    theme(legend.position = "right") + 
+                  #  geom_text(data = species_scores.t, aes(x = NMDS1, y = NMDS2, label = species),
+                  #            alpha = 0.5, size = 2) +
+                    facet_wrap(~title) +
+                    theme_ndvi + 
+                    theme(legend.position = "right",
+                          plot.margin = unit(c(0,0,0,0), "cm"))+ 
                     labs(x = "NMDS1", y = "NMDS2") +
                     scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
                                          name = "Site") +
@@ -425,6 +436,78 @@ for(g in levels(NMDS.t2$group)){
                                        labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")))
 
 ggsave("Figures/NMDS_t_elev.png", plot = nmds.plot.t2, width = 5, height = 4, units = "in")
+
+### Combined plotting ----
+## Making a combined dataframe for facet plotting
+data.scores <- full_join(data.scores.c, data.scores.s)
+data.scores <- full_join(data.scores, data.scores.t)
+
+# combining ellipsoids 
+df_ell.c1$title <- c("Cryptogams")
+df_ell.c2$title <- c("Cryptogams")
+df_ell.s1$title <- c("Short shrubs")
+df_ell.s2$title <- c("Short shrubs")
+df_ell.t1$title <- c("Tall shrubs")
+df_ell.t2$title <- c("Tall shrubs")
+
+df_ell1 <- full_join(df_ell.c1, df_ell.s1)  # site ellipsoids 
+df_ell1 <- full_join(df_ell1, df_ell.t1)
+
+df_ell2 <- full_join(df_ell.c2, df_ell.s2)  # elevation ellipsoids 
+df_ell2 <- full_join(df_ell2, df_ell.t2)
+
+## Site plots 
+(nmds.site <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) + 
+                  geom_polygon(data = df_ell1, aes(x = NMDS1, y = NMDS2, group = group,
+                                                   color = group, fill = group), alpha = 0.2, 
+                               size = 0.5, linetype = 1) +
+                  geom_point(aes(color = site, pch = site), size = 2) +
+                  facet_wrap(~title) +
+                  theme_ndvi + 
+                  theme(legend.position = "top",
+                        plot.margin = unit(c(5.5, 5.5, 5.5, 5.5), "pt"))+ 
+                  labs(x = "NMDS1", y = "NMDS2") +
+                  scale_color_manual(values = c("#9BCD9B", "#F4A460"),
+                                     labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
+                                     name = "Site") +
+                  scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
+                                       name = "Site") +
+                  scale_fill_manual(values = c("#9BCD9B", "#F4A460"),
+                                    labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
+                                    name = "Site"))
+
+## Elevation plots 
+(nmds.elev <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) + 
+                geom_polygon(data = df_ell2, aes(x = NMDS1, y = NMDS2, group = group,
+                                                 color = group, fill = group), alpha = 0.2, 
+                             size = 0.5, linetype = 1) +
+                geom_point(aes(color = elevation, pch = site), size = 2) +
+                facet_wrap(~title) +
+                theme_ndvi + 
+                theme(legend.position = "bottom",
+                      plot.margin = unit(c(0, 5.5, 5.5, 5.5), "pt")) + 
+                labs(x = "NMDS1", y = "NMDS2") +
+                scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
+                                     name = "Site") +
+                scale_fill_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
+                                             "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                                  name = "Elevation",
+                                  labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")) +
+                scale_color_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
+                                              "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                                   name = "Elevation",
+                                   labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")))
+
+
+## Making a panel
+panel_nmds <- grid.arrange(nmds.plot.c1, nmds.plot.s1, nmds.plot.t1, 
+                           nmds.plot.c2, nmds.plot.s2, nmds.plot.t2, 
+                           nrow = 2, widths = c(1, 1, 1.2))
+
+panel_nmds2 <- grid.arrange(nmds.site, nmds.elev, nrow = 2)
+
+ggsave("Figures/panel_nmds.png", plot = panel_nmds, width = 12, height = 6, units = "in")
+ggsave("Figures/panel_nmds2.png", plot = panel_nmds2, width = 8.5, height = 7, units = "in")
 
 
 ### ANOSIM test ----
@@ -455,12 +538,5 @@ ano.t1
 # Elevation
 ano.t2 <- anosim(matrix.t, plots.t$elevation, distance = "bray", permutations = 9999)
 ano.t2
-
-
-
-## Q for Emil: is it ok to plot an NMDS with > 2 dimensions in 2D? (axis 1 ~ axis 2)
-  # am I losing too much info/ how would I pick what axes to show? 
-  # if I can get it to converge with 2 dimensions, is this worth chosing over more despite the
-    # scree being a bit high? 
 
 
