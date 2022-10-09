@@ -464,7 +464,7 @@ df_ell2 <- full_join(df_ell2, df_ell.t2)
                   geom_point(aes(color = site, pch = site), size = 2) +
                   facet_wrap(~title) +
                   theme_ndvi + 
-                  theme(legend.position = "top",
+                  theme(legend.position = "bottom",
                         plot.margin = unit(c(5.5, 5.5, 5.5, 5.5), "pt"))+ 
                   labs(x = "NMDS1", y = "NMDS2") +
                   scale_color_manual(values = c("#9BCD9B", "#F4A460"),
