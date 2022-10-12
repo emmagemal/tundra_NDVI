@@ -48,13 +48,14 @@ mean_date$elev_cat <- relevel(mean_date$elev_cat,"H"); mean_date$elev_cat <- rel
 #model
 #anova. If the data is norm dist. I guess it is not
 model<-aov(data=data,temp~elev_cat*site); summary(model)
+model4<-lm(data=data, temp~elev_cat*site);summary(model4)
 
 #histograms of mean temp per elevation and site
 #few data points to say if normally distributed
 ggplot(mean_date,aes(x=temp.Mean))+geom_histogram()+facet_grid(~site+elev_cat)+theme_bw()
 #Using mean per date 
-model2<-aov(data=mean_date, temp.Mean~date*site)
-model3<-lm(data=mean_date, temp.Mean~date*site);summary(model3)
+model2<-aov(data=mean_date, temp.Mean~site*elev_cat)
+model3<-lm(data=mean_date, temp.Mean~site*elev_cat);summary(model3)
 summary(model2)
 
 
