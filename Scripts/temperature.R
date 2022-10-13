@@ -33,10 +33,12 @@ ggplot(mean,aes(elev_cat,temp.Mean))+geom_point(color="red")+geom_point(data=mea
 data$elev_cat <- relevel(data$elev_cat,"H");data$elev_cat <- relevel(data$elev_cat,"MH");data$elev_cat <- relevel(data$elev_cat,"M");data$elev_cat <- relevel(data$elev_cat,"ML");data$elev_cat <- relevel(data$elev_cat,"L")
 
 #plot it and change K and N to Wet and Dry
-#is not working :(
 data %>%
-  mutate(elev_cat = case_when(elev_cat == "K" ~ "Wet",
-                              elev_cat == "N" ~ "Dry")) %>% ggplot(data,aes(elev_cat,temp,color=elev_cat))+geom_boxplot()+facet_grid(~site)
+  mutate(site = case_when(site == "K" ~ "Wet",
+                              site == "N" ~ "Dry")) %>% ggplot(aes(elev_cat,temp,color=elev_cat))+geom_boxplot()+facet_grid(~site)+
+  geom_point() +
+  theme(legend.position="none")+labs(x="Elevation",y="Temperature (°C)")
+
 
 #Get max, mean and min temp per day
 #Might be used in model
