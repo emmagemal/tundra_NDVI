@@ -201,7 +201,8 @@ theme_ndvi <- theme_bw() +
 # NDVI ~ elevation + community + precipitation - MAIN RESULT 
 (plot_main <- ggplot(ndvi.rich, aes(x = elevation_m, y = NDVI)) +
                 stat_smooth(method = "lm", aes(color = community, fill = community)) +
-                geom_point(aes(color = community, shape = site)) +
+                geom_point(aes(color = community, fill = community, shape = community), 
+                           size = 1.5, alpha = 0.6) +
                 facet_wrap(~precip, scales = "free_x") +
                 xlab("Elevation (m a.s.l.)") +
                 ylab("NDVI") +
@@ -209,11 +210,12 @@ theme_ndvi <- theme_bw() +
                 theme(legend.key.size = unit(0.5, 'cm'),
                       legend.title = element_text(size = 10), 
                       legend.text = element_text(size = 8)) + 
-                scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                     name = "Site") +
+                scale_shape_manual(values = c(21, 22, 24),
+                                   name = "Community",
+                                   labels = c("Cryptogams", "Short Shrubs", "Tall Shrubs")) +
                 scale_color_manual(values = c("#F4A460", "#A78290", "#4E7BBF"),
                                    name = "Community",
-                                   labels = c("Cryptogams", "Short Shrubs", "Tall Shrubs"))+
+                                   labels = c("Cryptogams", "Short Shrubs", "Tall Shrubs")) +
                 scale_fill_manual(values = c("#F4A460", "#A78290", "#4E7BBF"),
                                    name = "Community",
                                    labels = c("Cryptogams", "Short Shrubs", "Tall Shrubs")))
@@ -256,13 +258,15 @@ ggsave("Figures/NDVI_mainresults.png", plot = plot_main, width = 6, height = 4, 
 # height ~ elevation + community + site 
 (plot_height2 <- ggplot(ndvi.rich, aes(x = elevation_m, y = avg_height)) +
                     stat_smooth(method = "lm", aes(color = community, fill = community)) + 
-                    geom_point(aes(color = community, shape = site)) +
+                    geom_point(aes(color = community, fill = community, shape = community), 
+                               size = 1.5, alpha = 0.6) +
                     facet_wrap(~precip, scales = "free_x") +
                     xlab("Elevation (m a.s.l.)") +
                     ylab("Average height (cm)") +
                     theme_ndvi +
-                    scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                         name = "Site") +
+                    scale_shape_manual(values = c(21, 22, 24),
+                                       name = "Community",
+                                       labels = c("Cryptogams", "Short Shrubs", "Tall Shrubs")) +
                     scale_color_manual(values = c("#F4A460", "#A78290", "#4E7BBF"),
                                        name = "Community",
                                        labels = c("Cryptogams", "Short Shrubs", "Tall Shrubs"))+
@@ -277,14 +281,14 @@ ggsave("Figures/height.png", plot = plot_height2, width = 6, height = 4, units =
 (plot_ratio <- ggplot(crypto, aes(x = ratio, y = NDVI)) +
                   stat_smooth(method = "lm", aes(color = precip, fill = site)) +
                   geom_vline(xintercept = 0, color = "grey", linetype = 2, size = 0.2) +
-                  geom_point(aes(color = precip)) +
+                  geom_point(aes(color = precip), size = 2, alpha = 0.5) +
                   facet_wrap(~precip) +
                   xlab("Moss:lichen ratio") +
                   ylab("NDVI") +
                   theme_ndvi +
                   theme(legend.position = "none") +
-                  scale_color_manual(values = c("#9BCD9B", "#F4A460")) +
-                  scale_fill_manual(values = c("#9BCD9B", "#F4A460")))
+                  scale_color_manual(values = c("#78A678", "#F4A460")) +
+                  scale_fill_manual(values = c("#78A678", "#F4A460")))
 
 ggsave("Figures/moss-lichen_ratio.png", plot = plot_ratio, width = 5, height = 4, units = "in")
 

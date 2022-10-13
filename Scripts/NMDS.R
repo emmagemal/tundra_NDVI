@@ -128,22 +128,24 @@ data.scores.c$title <- c("Cryptogams")
                     geom_polygon(data = df_ell.c1, aes(x = NMDS1, y = NMDS2, group = group,
                                                     color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
-                    geom_point(aes(color = site, pch = site), size = 2) +
-           #         geom_text(data = species_scores, aes(x = NMDS1, y = NMDS2, label = species),
-           #                   alpha = 0.5, size = 2) +
+                    geom_point(aes(color = site, shape = site, fill = site), 
+                               size = 2, alpha = 0.6) +
+           #        geom_text(data = species_scores, aes(x = NMDS1, y = NMDS2, label = species),
+           #                  alpha = 0.5, size = 2) +
                     facet_wrap(~title) +
                     theme_ndvi + 
                     theme(legend.position = "none",
                           plot.margin = unit(c(0,1.5,0.5,0), "cm")) + 
                     labs(x = "NMDS1", y = "NMDS2") +
-                    scale_color_manual(values = c("#9BCD9B", "#F4A460"),
-                                       labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                       name = "Site") +
-                    scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                         name = "Site") +
-                    scale_fill_manual(values = c("#9BCD9B", "#F4A460"),
-                                      labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                      name = "Site"))
+                    scale_color_manual(values = c("#78A678", "#F4A460"),
+                                       labels = c("Wet", "Dry"),
+                                       name = "Precipitation") +
+                    scale_shape_manual(values = c(21, 22),
+                                       labels = c("Wet", "Dry"),
+                                       name = "Precipitation") +
+                    scale_fill_manual(values = c("#78A678", "#F4A460"),
+                                      labels = c("Wet", "Dry"),
+                                      name = "Precipitation"))
 
 ggsave("Figures/NMDS_c_site.png", plot = nmds.plot.c1, width = 5, height = 4, units = "in")
 
@@ -172,7 +174,8 @@ for(g in levels(NMDS.c2$group)){
                     geom_polygon(data = df_ell.c2, aes(x = NMDS1, y = NMDS2, group = group,
                                                        color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
-                    geom_point(aes(color = elevation, pch = site), size = 2) +
+                    geom_point(aes(color = elevation, shape = site, fill = elevation), 
+                               size = 2, alpha = 0.6) +
              #geom_text(data = species_scores, aes(x = NMDS1, y = NMDS2, label = species),
              #          alpha = 0.5, size = 2) +
                     facet_wrap(~title) +
@@ -180,8 +183,9 @@ for(g in levels(NMDS.c2$group)){
                     theme(legend.position = "none",
                           plot.margin = unit(c(0,1.5,0,0), "cm"))+ 
                     labs(x = "NMDS1", y = "NMDS2") +
-                    scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                         name = "Site") +
+                    scale_shape_manual(values = c(21, 22),
+                                       labels = c("Wet", "Dry"),
+                                       name = "Precipitation") +
                     scale_fill_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
                                                  "MH" = "#7A7EA8", "H" = "#4E7BBF"),
                                       name = "Elevation",
@@ -251,7 +255,8 @@ data.scores.s$title <- c("Short shrubs")
                     geom_polygon(data = df_ell.s1, aes(x = NMDS1, y = NMDS2, group = group,
                                                        color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
-                    geom_point(aes(color = site, pch = site), size = 2) +
+                    geom_point(aes(color = site, shape = site, fill = site), 
+                               size = 2, alpha = 0.6) +
                  #   geom_text(data = species_scores.s, aes(x = NMDS1, y = NMDS2, label = species),
                  #             alpha = 0.5, size = 2) +
                     facet_wrap(~title) +
@@ -259,14 +264,15 @@ data.scores.s$title <- c("Short shrubs")
                     theme(legend.position = "none",
                           plot.margin = unit(c(0,1.5,0.5,0), "cm"))+ 
                     labs(x = "NMDS1", y = "NMDS2") +
-                    scale_color_manual(values = c("#9BCD9B", "#F4A460"),
-                                       labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                       name = "Site") +
-                    scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                         name = "Site") +
-                    scale_fill_manual(values = c("#9BCD9B", "#F4A460"),
-                                      labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                      name = "Site"))
+                    scale_color_manual(values = c("#78A678", "#F4A460"),
+                                       labels = c("Wet", "Dry"),
+                                       name = "Precipitation") +
+                    scale_shape_manual(values = c(21, 22),
+                                       labels = c("Wet", "Dry"),
+                                       name = "Precipitation") +
+                    scale_fill_manual(values = c("#78A678", "#F4A460"),
+                                      labels = c("Wet", "Dry"),
+                                      name = "Precipitation"))
 
 ggsave("Figures/NMDS_s_site.png", plot = nmds.plot.s1, width = 5, height = 4, units = "in")
 
@@ -294,7 +300,8 @@ for(g in levels(NMDS.s2$group)){
                     geom_polygon(data = df_ell.s2, aes(x = NMDS1, y = NMDS2, group = group,
                                                        color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
-                    geom_point(aes(color = elevation, pch = site), size = 2) +
+                    geom_point(aes(color = elevation, shape = site, fill = elevation), 
+                               size = 2, alpha = 0.7) +
                #     geom_text(data = species_scores.s, aes(x = NMDS1, y = NMDS2, label = species),
                #               alpha = 0.5, size = 2) +
                     facet_wrap(~title) +
@@ -302,8 +309,9 @@ for(g in levels(NMDS.s2$group)){
                     theme(legend.position = "none",
                           plot.margin = unit(c(0,1.5,0,0), "cm"))+ 
                     labs(x = "NMDS1", y = "NMDS2") +
-                    scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                         name = "Site") +
+                    scale_shape_manual(values = c(21, 22),
+                                       labels = c("Wet", "Dry"),
+                                       name = "Precipitation") +
                     scale_fill_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
                                                  "MH" = "#7A7EA8", "H" = "#4E7BBF"),
                                       name = "Elevation",
@@ -373,7 +381,8 @@ data.scores.t$title <- c("Tall shrubs")
                     geom_polygon(data = df_ell.t1, aes(x = NMDS1, y = NMDS2, group = group,
                                                        color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
-                    geom_point(aes(color = site, pch = site), size = 2) +
+                    geom_point(aes(color = site, shape = site, fill = site), 
+                               size = 2, alpha = 0.6) +
                    # geom_text(data = species_scores.t, aes(x = NMDS1, y = NMDS2, label = species),
                    #           alpha = 0.5, size = 2) +
                     facet_wrap(~title) +
@@ -381,14 +390,15 @@ data.scores.t$title <- c("Tall shrubs")
                     theme(legend.position = "right",
                           plot.margin = unit(c(0,0,0.5,0), "cm"))+ 
                     labs(x = "NMDS1", y = "NMDS2") +
-                    scale_color_manual(values = c("#9BCD9B", "#F4A460"),
-                                       labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                       name = "Site") +
-                    scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                         name = "Site") +
-                    scale_fill_manual(values = c("#9BCD9B", "#F4A460"),
-                                      labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                      name = "Site"))
+                    scale_color_manual(values = c("#78A678", "#F4A460"),
+                                       labels = c("Wet", "Dry"),
+                                       name = "Precipitation") +
+                    scale_shape_manual(values = c(21, 22),
+                                       labels = c("Wet", "Dry"),
+                                       name = "Precipitation") +
+                    scale_fill_manual(values = c("#78A678", "#F4A460"),
+                                      labels = c("Wet", "Dry"),
+                                      name = "Precipitation"))
 
 ggsave("Figures/NMDS_t_site.png", plot = nmds.plot.t1, width = 5, height = 4, units = "in")
 
@@ -416,7 +426,8 @@ for(g in levels(NMDS.t2$group)){
                     geom_polygon(data = df_ell.t2, aes(x = NMDS1, y = NMDS2, group = group,
                                                        color = group, fill = group), alpha = 0.2, 
                                  size = 0.5, linetype = 1) +
-                    geom_point(aes(color = elevation, pch = site), size = 2) +
+                    geom_point(aes(color = elevation, shape = site, fill = elevation),
+                               size = 2, alpha = 0.6) +
                   #  geom_text(data = species_scores.t, aes(x = NMDS1, y = NMDS2, label = species),
                   #            alpha = 0.5, size = 2) +
                     facet_wrap(~title) +
@@ -424,8 +435,9 @@ for(g in levels(NMDS.t2$group)){
                     theme(legend.position = "right",
                           plot.margin = unit(c(0,0,0,0), "cm"))+ 
                     labs(x = "NMDS1", y = "NMDS2") +
-                    scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                         name = "Site") +
+                    scale_shape_manual(values = c(21, 22),
+                                        labels = c("Wet", "Dry"),
+                                        name = "Precipitation") +
                     scale_fill_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
                                                  "MH" = "#7A7EA8", "H" = "#4E7BBF"),
                                       name = "Elevation",
@@ -461,34 +473,38 @@ df_ell2 <- full_join(df_ell2, df_ell.t2)
                   geom_polygon(data = df_ell1, aes(x = NMDS1, y = NMDS2, group = group,
                                                    color = group, fill = group), alpha = 0.2, 
                                size = 0.5, linetype = 1) +
-                  geom_point(aes(color = site, pch = site), size = 2) +
+                  geom_point(aes(color = site, shape = site, fill = site), 
+                             size = 2, alpha = 0.6) +
                   facet_wrap(~title) +
                   theme_ndvi + 
                   theme(legend.position = "bottom",
                         plot.margin = unit(c(5.5, 5.5, 5.5, 5.5), "pt"))+ 
                   labs(x = "NMDS1", y = "NMDS2") +
-                  scale_color_manual(values = c("#9BCD9B", "#F4A460"),
-                                     labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                     name = "Site") +
-                  scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                       name = "Site") +
-                  scale_fill_manual(values = c("#9BCD9B", "#F4A460"),
-                                    labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                    name = "Site"))
+                  scale_color_manual(values = c("#78A678", "#F4A460"),
+                                     labels = c("Wet", "Dry"),
+                                     name = "Precipitation") +
+                  scale_shape_manual(values = c(21, 22),
+                                     labels = c("Wet", "Dry"),
+                                     name = "Precipitation") +
+                  scale_fill_manual(values = c("#78A678", "#F4A460"),
+                                    labels = c("Wet", "Dry"),
+                                    name = "Precipitation"))
 
 ## Elevation plots 
 (nmds.elev <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) + 
                 geom_polygon(data = df_ell2, aes(x = NMDS1, y = NMDS2, group = group,
                                                  color = group, fill = group), alpha = 0.2, 
                              size = 0.5, linetype = 1) +
-                geom_point(aes(color = elevation, pch = site), size = 2) +
+                geom_point(aes(color = elevation, shape = site, fill = elevation),
+                           size = 2, alpha = 0.6) +
                 facet_wrap(~title) +
                 theme_ndvi + 
                 theme(legend.position = "bottom",
                       plot.margin = unit(c(0, 5.5, 5.5, 5.5), "pt")) + 
                 labs(x = "NMDS1", y = "NMDS2") +
-                scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
-                                     name = "Site") +
+                scale_shape_manual(values = c(21, 22),
+                                   labels = c("Wet", "Dry"),
+                                   name = "Precipitation") +
                 scale_fill_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
                                              "MH" = "#7A7EA8", "H" = "#4E7BBF"),
                                   name = "Elevation",
