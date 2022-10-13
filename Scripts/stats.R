@@ -126,11 +126,14 @@ ggplot(crypto_sum2, aes(x = site, y = avg_ratio)) +
 shapiro.test(crypto$ratio)   # not normal itself 
 t.test(ratio ~ site, data = crypto)  # not a significant difference though between sites 
 
+crypto %>% group_by(site) %>% summarize(sd(ratio))
+
 shapiro.test(resid(lm(ratio ~ site*elevation_m, data = crypto)))  # normal residuals 
 summary(lm(ratio ~ elevation_m*site, data = crypto))  # no significant differences 
 
-shapiro.test(resid(lm(NDVI ~ ratio, data = crypto)))  # normal
-summary(lm(NDVI ~ ratio, data = crypto))  # no significant differences 
+shapiro.test(resid(lm(NDVI ~ ratio*site, data = crypto)))  # normal
+summary(lm(NDVI ~ ratio*site, data = crypto))  # no significant differences 
+
 
 
 ## Basic Stats --
