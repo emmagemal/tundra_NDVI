@@ -151,6 +151,35 @@ theme_ndvi <- theme_bw() +
 
 ggsave("Figures/temp_boxplot.png", plot = temp_box, width = 6, height = 4, units = "in")
 
+# non-split boxplots
+(temp_box2 <- ggplot(temp, aes(elev_cat, temp)) +
+                geom_boxplot(aes(fill = elev_cat, color = elev_cat), alpha = 0.5) +
+                facet_wrap(~precip, scales = "free") +
+                xlab("Elevation level") +
+                ylab("Daily temperature (˚C)") +
+                theme_ndvi +
+                theme(legend.position = "none") +
+                scale_color_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
+                                              "MH" = "#7A7EA8", "H" = "#4E7BBF")) +
+                scale_fill_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
+                                             "MH" = "#7A7EA8", "H" = "#4E7BBF")))
+
+ggsave("Figures/temp_boxplot2.png", plot = temp_box2, width = 6, height = 4, units = "in")
+
+# alt color scheme 
+(temp_box3 <- ggplot(temp, aes(elev_cat, temp)) +
+                geom_boxplot(aes(fill = site, color = site), alpha = 0.5) +
+                facet_wrap(~precip, scales = "free") +
+                xlab("Elevation level") +
+                ylab("Daily temperature (˚C)") +
+                theme_ndvi +
+                theme(legend.position = "none") +
+                scale_color_manual(values = c("#78A678", "#F4A460")) +
+                scale_fill_manual(values = c("#78A678", "#F4A460")))
+
+ggsave("Figures/temp_boxplot_site.png", plot = temp_box3, width = 6, height = 4, units = "in")
+
+
 # hourly measurements for whole period 
 (temp_hour <- ggplot(temp, aes(x = date_time, y = temp)) +
                 geom_point(aes(color = elev_cat)) +
