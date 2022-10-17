@@ -1,7 +1,8 @@
 ### Library ----
 library(tidyverse)
 library(vegan)
-library(gridExtra)
+library(ggpubr)
+# library(DescTools)  # only needed for ColToGrey function
 
 ### Data ---- 
 matrix.sp <- read.csv("Data/nmds_matrix.csv", header = T)
@@ -137,17 +138,17 @@ data.scores.c$title <- c("Cryptogams")
                     theme(legend.position = "none",
                           plot.margin = unit(c(0,1.5,0.5,0), "cm")) + 
                     labs(x = "NMDS1", y = "NMDS2") +
-                    scale_color_manual(values = c("#78A678", "#F4A460"),
+                    scale_color_manual(values = c("#458264", "#F4A460"),
                                        labels = c("Wet", "Dry"),
                                        name = "Precipitation") +
                     scale_shape_manual(values = c(21, 22),
                                        labels = c("Wet", "Dry"),
                                        name = "Precipitation") +
-                    scale_fill_manual(values = c("#78A678", "#F4A460"),
+                    scale_fill_manual(values = c("#458264", "#F4A460"),
                                       labels = c("Wet", "Dry"),
                                       name = "Precipitation"))
 
-ggsave("Figures/NMDS_c_site.png", plot = nmds.plot.c1, width = 5, height = 4, units = "in")
+# ggsave("Figures/NMDS_c_site.png", plot = nmds.plot.c1, width = 5, height = 4, units = "in")
 
 # ELEVATION
 # extracting NMDS scores (x and y coordinates)
@@ -186,16 +187,16 @@ for(g in levels(NMDS.c2$group)){
                     scale_shape_manual(values = c(21, 22),
                                        labels = c("Wet", "Dry"),
                                        name = "Precipitation") +
-                    scale_fill_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
-                                                 "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                    scale_fill_manual(values = c("L" = "#FFA27A", "LM" = "#C1725C", "M" = "#81646F", 
+                                                 "MH" = "#415581", "H" = "#4E7BBF"),
                                       name = "Elevation",
                                       labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")) +
-                    scale_color_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
-                                                  "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                    scale_color_manual(values = c("L" = "#FFA27A", "LM" = "#C1725C", "M" = "#81646F", 
+                                                  "MH" = "#415581", "H" = "#4E7BBF"),
                                        name = "Elevation",
                                        labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")))
 
-ggsave("Figures/NMDS_c_elev.png", plot = nmds.plot.c2, width = 5, height = 4, units = "in")
+# ggsave("Figures/NMDS_c_elev.png", plot = nmds.plot.c2, width = 5, height = 4, units = "in")
 
 
 ### SHORT SHRUBS ----  
@@ -264,17 +265,17 @@ data.scores.s$title <- c("Short shrubs")
                     theme(legend.position = "none",
                           plot.margin = unit(c(0,1.5,0.5,0), "cm"))+ 
                     labs(x = "NMDS1", y = "NMDS2") +
-                    scale_color_manual(values = c("#78A678", "#F4A460"),
+                    scale_color_manual(values = c("#458264", "#F4A460"),
                                        labels = c("Wet", "Dry"),
                                        name = "Precipitation") +
                     scale_shape_manual(values = c(21, 22),
                                        labels = c("Wet", "Dry"),
                                        name = "Precipitation") +
-                    scale_fill_manual(values = c("#78A678", "#F4A460"),
+                    scale_fill_manual(values = c("#458264", "#F4A460"),
                                       labels = c("Wet", "Dry"),
                                       name = "Precipitation"))
 
-ggsave("Figures/NMDS_s_site.png", plot = nmds.plot.s1, width = 5, height = 4, units = "in")
+# ggsave("Figures/NMDS_s_site.png", plot = nmds.plot.s1, width = 5, height = 4, units = "in")
 
 # ELEVATION
 # extracting NMDS scores (x and y coordinates)
@@ -312,16 +313,16 @@ for(g in levels(NMDS.s2$group)){
                     scale_shape_manual(values = c(21, 22),
                                        labels = c("Wet", "Dry"),
                                        name = "Precipitation") +
-                    scale_fill_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
-                                                 "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                    scale_fill_manual(values = c("L" = "#FFA27A", "LM" = "#C1725C", "M" = "#81646F", 
+                                                 "MH" = "#415581", "H" = "#4E7BBF"),
                                       name = "Elevation",
                                       labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")) +
-                    scale_color_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
-                                                  "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                    scale_color_manual(values = c("L" = "#FFA27A", "LM" = "#C1725C", "M" = "#81646F", 
+                                                  "MH" = "#415581", "H" = "#4E7BBF"),
                                        name = "Elevation",
                                        labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")))
 
-ggsave("Figures/NMDS_s_elev.png", plot = nmds.plot.s2, width = 5, height = 4, units = "in")
+# ggsave("Figures/NMDS_s_elev.png", plot = nmds.plot.s2, width = 5, height = 4, units = "in")
 
 
 ### TALL SHRUBS ----
@@ -390,17 +391,17 @@ data.scores.t$title <- c("Tall shrubs")
                     theme(legend.position = "right",
                           plot.margin = unit(c(0,0,0.5,0), "cm"))+ 
                     labs(x = "NMDS1", y = "NMDS2") +
-                    scale_color_manual(values = c("#78A678", "#F4A460"),
+                    scale_color_manual(values = c("#458264", "#F4A460"),
                                        labels = c("Wet", "Dry"),
                                        name = "Precipitation") +
                     scale_shape_manual(values = c(21, 22),
                                        labels = c("Wet", "Dry"),
                                        name = "Precipitation") +
-                    scale_fill_manual(values = c("#78A678", "#F4A460"),
+                    scale_fill_manual(values = c("#458264", "#F4A460"),
                                       labels = c("Wet", "Dry"),
                                       name = "Precipitation"))
 
-ggsave("Figures/NMDS_t_site.png", plot = nmds.plot.t1, width = 5, height = 4, units = "in")
+# ggsave("Figures/NMDS_t_site.png", plot = nmds.plot.t1, width = 5, height = 4, units = "in")
 
 # ELEVATION
 # extracting NMDS scores (x and y coordinates)
@@ -438,16 +439,16 @@ for(g in levels(NMDS.t2$group)){
                     scale_shape_manual(values = c(21, 22),
                                         labels = c("Wet", "Dry"),
                                         name = "Precipitation") +
-                    scale_fill_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
-                                                 "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                    scale_fill_manual(values = c("L" = "#FFA27A", "LM" = "#C1725C", "M" = "#81646F", 
+                                                 "MH" = "#415581", "H" = "#4E7BBF"),
                                       name = "Elevation",
                                       labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")) +
-                    scale_color_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
-                                                  "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                    scale_color_manual(values = c("L" = "#FFA27A", "LM" = "#C1725C", "M" = "#81646F", 
+                                                  "MH" = "#415581", "H" = "#4E7BBF"),
                                        name = "Elevation",
                                        labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")))
 
-ggsave("Figures/NMDS_t_elev.png", plot = nmds.plot.t2, width = 5, height = 4, units = "in")
+# ggsave("Figures/NMDS_t_elev.png", plot = nmds.plot.t2, width = 5, height = 4, units = "in")
 
 ### Combined plotting ----
 ## Making a combined dataframe for facet plotting
@@ -477,53 +478,74 @@ df_ell2 <- full_join(df_ell2, df_ell.t2)
                              size = 2, alpha = 0.6) +
                   facet_wrap(~title) +
                   theme_ndvi + 
-                  theme(legend.position = "bottom",
+                  theme(legend.position = "right",
                         plot.margin = unit(c(5.5, 5.5, 5.5, 5.5), "pt"))+ 
                   labs(x = "NMDS1", y = "NMDS2") +
-                  scale_color_manual(values = c("#78A678", "#F4A460"),
+                  scale_color_manual(values = c("#458264", "#F4A460"),
                                      labels = c("Wet", "Dry"),
                                      name = "Precipitation") +
                   scale_shape_manual(values = c(21, 22),
                                      labels = c("Wet", "Dry"),
                                      name = "Precipitation") +
-                  scale_fill_manual(values = c("#78A678", "#F4A460"),
+                  scale_fill_manual(values = c("#458264", "#F4A460"),
                                     labels = c("Wet", "Dry"),
                                     name = "Precipitation"))
 
 ## Elevation plots 
-(nmds.elev <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) + 
-                geom_polygon(data = df_ell2, aes(x = NMDS1, y = NMDS2, group = group,
+(nmds.elev <- ggplot(subset(data.scores, title %in% "Short shrubs")) + 
+                geom_polygon(data = subset(df_ell2, title %in% "Short shrubs"),
+                             aes(x = NMDS1, y = NMDS2, group = group,
                                                  color = group, fill = group), alpha = 0.2, 
                              size = 0.5, linetype = 1) +
-                geom_point(aes(color = elevation, shape = site, fill = elevation),
-                           size = 2, alpha = 0.6) +
+                geom_point(aes(x = NMDS1, y = NMDS2, color = elevation, shape = site, 
+                               fill = elevation), size = 2, alpha = 0.6) +
                 facet_wrap(~title) +
                 theme_ndvi + 
-                theme(legend.position = "bottom",
-                      plot.margin = unit(c(0, 5.5, 5.5, 5.5), "pt")) + 
+                theme(legend.position = "right",
+                      plot.margin = unit(c(20, 5.5, 5.5, 10), "pt")) + 
                 labs(x = "NMDS1", y = "NMDS2") +
                 scale_shape_manual(values = c(21, 22),
                                    labels = c("Wet", "Dry"),
                                    name = "Precipitation") +
-                scale_fill_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
-                                             "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                scale_fill_manual(values = c("L" = "#FFA27A", "LM" = "#C1725C", "M" = "#81646F", 
+                                             "MH" = "#415581", "H" = "#4E7BBF"),
                                   name = "Elevation",
                                   labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")) +
-                scale_color_manual(values = c("L" = "#F4A460", "LM" = "#D38579", "M" = "#A78290", 
-                                              "MH" = "#7A7EA8", "H" = "#4E7BBF"),
+                scale_color_manual(values = c("L" = "#FFA27A", "LM" = "#C1725C", "M" = "#81646F", 
+                                              "MH" = "#415581", "H" = "#4E7BBF"),
                                    name = "Elevation",
                                    labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")))
 
 
+# adding moss:lichen plot to panel
+(plot_ratio <- ggplot(crypto, aes(x = ratio, y = NDVI)) +
+                stat_smooth(method = "lm", aes(color = precip, fill = site)) +
+                geom_vline(xintercept = 0, color = "grey", linetype = 2, size = 0.2) +
+                geom_point(aes(color = precip), size = 2, alpha = 0.5) +
+                facet_wrap(~precip) +
+                xlab("Moss:lichen ratio") +
+                ylab("NDVI") +
+                theme_ndvi +
+                theme(legend.position = "none",
+                      plot.margin = unit(c(20, 20, 5.5, 5.5), "pt")) +
+                scale_color_manual(values = c("#458264", "#F4A460")) +
+                scale_fill_manual(values = c("#458264", "#F4A460")))
+
+
 ## Making a panel
-panel_nmds <- grid.arrange(nmds.plot.c1, nmds.plot.s1, nmds.plot.t1, 
-                           nmds.plot.c2, nmds.plot.s2, nmds.plot.t2, 
-                           nrow = 2, widths = c(1, 1, 1.2))
+#panel_nmds <- grid.arrange(nmds.plot.c1, nmds.plot.s1, nmds.plot.t1, 
+ #                          nmds.plot.c2, nmds.plot.s2, nmds.plot.t2, 
+  #                         nrow = 2, widths = c(1, 1, 1.2))
 
-panel_nmds2 <- grid.arrange(nmds.site, nmds.elev, nrow = 2)
+(panel_nmds2 <- ggarrange(nmds.site,
+                          ggarrange(plot_ratio, nmds.elev, 
+                                    ncol = 2, labels = c("b", "c"), 
+                                    font.label = list(size = 20, face = "bold")),
+                          nrow = 2, labels = "a", font.label = list(size = 20, face = "bold")))
 
-ggsave("Figures/panel_nmds.png", plot = panel_nmds, width = 12, height = 6, units = "in")
-ggsave("Figures/panel_nmds2.png", plot = panel_nmds2, width = 8.5, height = 7, units = "in")
+
+# ggsave("Figures/panel_nmds.png", plot = panel_nmds, width = 12, height = 6, units = "in")
+ggsave("Figures/panel_nmds2.png", plot = panel_nmds2, width = 9, height = 7, units = "in")
 
 
 ### ANOSIM test ----
