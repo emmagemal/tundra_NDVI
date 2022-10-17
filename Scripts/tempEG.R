@@ -3,6 +3,7 @@
 
 ### Library ----
 library(tidyverse)
+# library(DescTools)  # only needed for ColToGrey function
 
 
 # Loading the data 
@@ -144,9 +145,9 @@ theme_ndvi <- theme_bw() +
                 ylab("Daily temperature (˚C)") +
                 theme_ndvi +
                 theme(legend.title = element_blank()) +
-                scale_color_manual(values = c("#F4A460", "#78A678", "#4E7BBF"),
+                scale_color_manual(values = c("#F4A460", "#62946B", "#255090"),
                                    labels = c("Maximum", "Mean", "Minimum")) +
-                scale_fill_manual(values = c("#F4A460", "#78A678", "#4E7BBF"),
+                scale_fill_manual(values = c("#F4A460", "#62946B", "#255090"),
                                    labels = c("Maximum", "Mean", "Minimum")))
 
 ggsave("Figures/temp_boxplot.png", plot = temp_box, width = 6, height = 4, units = "in")

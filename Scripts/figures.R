@@ -3,6 +3,7 @@
 
 ### Library ----
 library(tidyverse)
+# library(DescTools)  # only needed for ColToGrey function
 
 
 ### Data ----
@@ -198,11 +199,17 @@ theme_ndvi <- theme_bw() +
                         element_text(margin = margin(t = 0, r = 10, b = 0, l = 0))) +
                 theme(plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"))
 
+large_points <- function(data, params, size) {   # makes point shapes in legend bigger 
+  # Multiply by some number
+  data$size <- data$size * 2
+  draw_key_point(data = data, params = params, size = size)
+}
+
 # NDVI ~ elevation + community + precipitation - MAIN RESULT 
 (plot_main <- ggplot(ndvi.rich, aes(x = elevation_m, y = NDVI)) +
                 stat_smooth(method = "lm", aes(color = community, fill = community)) +
                 geom_point(aes(color = community, fill = community, shape = community), 
-                           size = 1.5, alpha = 0.6) +
+                           size = 1.5, alpha = 0.6, key_glyph = large_points) +
                 facet_wrap(~precip, scales = "free_x") +
                 xlab("Elevation (m a.s.l.)") +
                 ylab("NDVI") +
@@ -213,10 +220,10 @@ theme_ndvi <- theme_bw() +
                 scale_shape_manual(values = c(21, 22, 24),
                                    name = "Community",
                                    labels = c("Cryptogams", "Short Shrubs", "Tall Shrubs")) +
-                scale_color_manual(values = c("#F4A460", "#A78290", "#4E7BBF"),
+                scale_color_manual(values = c("#F4A460", "#957581", "#255090"),
                                    name = "Community",
                                    labels = c("Cryptogams", "Short Shrubs", "Tall Shrubs")) +
-                scale_fill_manual(values = c("#F4A460", "#A78290", "#4E7BBF"),
+                scale_fill_manual(values = c("#F4A460", "#957581", "#255090"),
                                    name = "Community",
                                    labels = c("Cryptogams", "Short Shrubs", "Tall Shrubs")))
 
@@ -232,10 +239,10 @@ ggsave("Figures/NDVI_mainresults.png", plot = plot_main, width = 6, height = 4, 
                 theme_ndvi +
                 scale_shape_discrete(labels = c("Katterjokk (wet)", "Nissonjokk (dry)"),
                                      name = "Site") +
-                scale_color_manual(values = c("#F4A460", "#A78290", "#4E7BBF"),
+                scale_color_manual(values = c("#F4A460", "#957581", "#255090"),
                                    name = "Community",
                                    labels = c("Cryptogams", "Short Shrubs", "Tall Shrubs"))+
-                scale_fill_manual(values = c("#F4A460", "#A78290", "#4E7BBF"),
+                scale_fill_manual(values = c("#F4A460", "#957581", "#255090"),
                                   name = "Community",
                                   labels = c("Cryptogams", "Short Shrubs", "Tall Shrubs")))
 
@@ -259,7 +266,7 @@ ggsave("Figures/NDVI_mainresults.png", plot = plot_main, width = 6, height = 4, 
 (plot_height2 <- ggplot(ndvi.rich, aes(x = elevation_m, y = avg_height)) +
                     stat_smooth(method = "lm", aes(color = community, fill = community)) + 
                     geom_point(aes(color = community, fill = community, shape = community), 
-                               size = 1.5, alpha = 0.6) +
+                               size = 1.5, alpha = 0.6, key_glyph = large_points) +
                     facet_wrap(~precip, scales = "free_x") +
                     xlab("Elevation (m a.s.l.)") +
                     ylab("Average height (cm)") +
@@ -267,10 +274,10 @@ ggsave("Figures/NDVI_mainresults.png", plot = plot_main, width = 6, height = 4, 
                     scale_shape_manual(values = c(21, 22, 24),
                                        name = "Community",
                                        labels = c("Cryptogams", "Short Shrubs", "Tall Shrubs")) +
-                    scale_color_manual(values = c("#F4A460", "#A78290", "#4E7BBF"),
+                    scale_color_manual(values = c("#F4A460", "#957581", "#255090"),
                                        name = "Community",
                                        labels = c("Cryptogams", "Short Shrubs", "Tall Shrubs"))+
-                    scale_fill_manual(values = c("#F4A460", "#A78290", "#4E7BBF"),
+                    scale_fill_manual(values = c("#F4A460", "#957581", "#255090"),
                                       name = "Community",
                                       labels = c("Cryptogams", "Short Shrubs", "Tall Shrubs")))
 

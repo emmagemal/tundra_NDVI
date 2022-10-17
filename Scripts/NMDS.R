@@ -491,7 +491,7 @@ df_ell2 <- full_join(df_ell2, df_ell.t2)
                                     labels = c("Wet", "Dry"),
                                     name = "Precipitation"))
 
-## Elevation plots 
+## Elevation plots (short shrubs only)
 (nmds.elev <- ggplot(subset(data.scores, title %in% "Short shrubs")) + 
                 geom_polygon(data = subset(df_ell2, title %in% "Short shrubs"),
                              aes(x = NMDS1, y = NMDS2, group = group,
@@ -547,6 +547,33 @@ df_ell2 <- full_join(df_ell2, df_ell.t2)
 # ggsave("Figures/panel_nmds.png", plot = panel_nmds, width = 12, height = 6, units = "in")
 ggsave("Figures/panel_nmds2.png", plot = panel_nmds2, width = 9, height = 7, units = "in")
 
+
+# cryptogams and tall shrubs - elevation  
+(nmds.elev2 <- ggplot(subset(data.scores, !title %in% "Short shrubs")) + 
+                  geom_polygon(data = subset(df_ell2, !title %in% "Short shrubs"),
+                               aes(x = NMDS1, y = NMDS2, group = group,
+                                   color = group, fill = group), alpha = 0.2, 
+                               size = 0.5, linetype = 1) +
+                  geom_point(aes(x = NMDS1, y = NMDS2, color = elevation, shape = site, 
+                                 fill = elevation), size = 2, alpha = 0.6) +
+                  facet_wrap(~title) +
+                  theme_ndvi + 
+                  theme(legend.position = "right",
+                        plot.margin = unit(c(20, 5.5, 5.5, 10), "pt")) + 
+                  labs(x = "NMDS1", y = "NMDS2") +
+                  scale_shape_manual(values = c(21, 22),
+                                     labels = c("Wet", "Dry"),
+                                     name = "Precipitation") +
+                  scale_fill_manual(values = c("L" = "#FFA27A", "LM" = "#C1725C", "M" = "#81646F", 
+                                               "MH" = "#415581", "H" = "#4E7BBF"),
+                                    name = "Elevation",
+                                    labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")) +
+                  scale_color_manual(values = c("L" = "#FFA27A", "LM" = "#C1725C", "M" = "#81646F", 
+                                                "MH" = "#415581", "H" = "#4E7BBF"),
+                                     name = "Elevation",
+                                     labels = c("Low", "Low-Mid", "Mid", "Mid-High", "High")))
+
+ggsave("Figures/nmds_elev_ct.png", plot = nmds.elev2, width = 7, height = 4, units = "in")
 
 ### ANOSIM test ----
 # testing if we have significantly different communities
