@@ -11,6 +11,11 @@ Arctic Ecosystems course (**Umeå University**) project investigating the driver
 The data collected and used for this project and all of its associated statistical analysis and figures can be found [here](https://github.com/emmagemal/tundra_NDVI/tree/main/Data).
 
 The R scripts can be found [here](https://github.com/emmagemal/tundra_NDVI/tree/main/Scripts).
+- The scripts used in E. Gemal's report include:
+  - [stats.R](https://github.com/emmagemal/tundra_NDVI/blob/main/Scripts/stats.R)
+  - [figures.R](https://github.com/emmagemal/tundra_NDVI/blob/main/Scripts/figures.R)
+  - [tempEG.R](https://github.com/emmagemal/tundra_NDVI/blob/main/Scripts/tempEG.R)
+  - [NMDS.R](https://github.com/emmagemal/tundra_NDVI/blob/main/Scripts/NMDS.R)
 
 The figures produced and used in the project report and presentation can be found [here](https://github.com/emmagemal/tundra_NDVI/tree/main/Figures).
 
